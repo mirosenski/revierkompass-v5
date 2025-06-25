@@ -29,7 +29,7 @@ const initializeApp = () => {
   }
 
   // Set app metadata
-  document.title = 'RevierKompass v2.0 - Polizei Baden-Württemberg';
+  document.title = 'RevierKompass - Polizei Baden-Württemberg';
   
   // Set favicon and meta tags
   const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
@@ -39,7 +39,7 @@ const initializeApp = () => {
 
   const metaDescription = document.querySelector('meta[name="description"]') as HTMLMetaElement;
   if (metaDescription) {
-    metaDescription.content = 'Professionelle Routing-Anwendung für die Polizei Baden-Württemberg. Präzise Navigation zu allen 158 Polizeistationen mit Multi-Provider Routing-Technologie.';
+    metaDescription.content = 'RevierKompass - Professionelle Routing-Anwendung für die Polizei Baden-Württemberg. Präzise Navigation zu allen 158 Polizeistationen mit Multi-Provider Routing-Technologie.';
   }
 
   // Add meta viewport for mobile optimization
@@ -54,7 +54,7 @@ const initializeApp = () => {
   metaThemeColor.content = '#1e40af';
   document.head.appendChild(metaThemeColor);
 
-  console.log('🚓 RevierKompass v2.0 - Polizei Baden-Württemberg');
+  console.log('🚓 RevierKompass - Polizei Baden-Württemberg');
   console.log('🎯 Präzise Routing-Technologie initialisiert');
   console.log('🌍 Baden-Württemberg Fokus aktiviert');
   console.log('⚡ Multi-Provider Routing bereit');

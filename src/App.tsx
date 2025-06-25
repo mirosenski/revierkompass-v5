@@ -11,8 +11,15 @@ import AdminDashboard from '@/components/admin/AdminDashboard';
 
 function App() {
   const [currentView, setCurrentView] = useState<'wizard' | 'login' | 'admin'>('wizard');
-  const { isDarkMode } = useAppStore();
+  const { isDarkMode, setWizardStep } = useAppStore();
   const { isAuthenticated, isAdmin } = useAuthStore();
+
+  // Beim Start der Anwendung immer zum Wizard mit Schritt 1 (Adressen-Startseite) navigieren
+  useEffect(() => {
+    setCurrentView('wizard');
+    setWizardStep(1);
+    console.log('🚀 RevierKompass gestartet - Adressen-Startseite aktiviert');
+  }, [setWizardStep]);
 
   useEffect(() => {
     if (isDarkMode) {

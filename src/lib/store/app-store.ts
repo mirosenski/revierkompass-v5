@@ -251,10 +251,11 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         isDarkMode: state.isDarkMode,
         customAddresses: state.customAddresses,
-        wizard: {
-          ...state.wizard,
-          routeResults: [] // Don't persist route results
-        }
+        // Wizard-Zustand wird nicht persistiert, damit immer mit Schritt 1 begonnen wird
+        // wizard: {
+        //   ...state.wizard,
+        //   routeResults: [] // Don't persist route results
+        // }
       }),
     }
   )
