@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // BCrypt-Hash
+  role      String   @default("user") // "admin" | "user"
+  isActive  Boolean  @default(true)
+  lastLogin DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  addresses CustomAddress[]
+  auditLogs AuditLog[]
+  
+  @@map("users")
+}
+
+model PoliceStation {
+  id          String   @id @default(uuid())
+  name        String
+  address     String
+  city        String
+  zipCode     String
+  coordinates Json     // {lat: number, lng: number}
+  type        String   // "präsidium" | "revier"
+  phone       String?
+  email       String?
+  openingHours String?
+  isEmergency Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  auditLogs   AuditLog[]
+  
+  @@map("police_stations")
+}
+
+model CustomAddress {
+  id          String   @id @default(uuid())
+  userId      String?  // Optional für anonyme Adressen
+  name        String
+  street      String
+  zipCode     String
+  city        String
+  coordinates Json     // {lat: number, lng: number}
+  isActive    Boolean  @default(true)
+  isVerified  Boolean  @default(false) // Admin kann verifizieren
+  isAnonymous Boolean  @default(false) // Für anonyme Einreichungen
+  reviewStatus String  @default("pending") // "pending" | "approved" | "rejected"
+  reviewedBy  String?  // Admin user ID who reviewed
+  reviewedAt  DateTime?
+  reviewNotes String?  // Admin review notes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("custom_addresses")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String   // "create_station" | "delete_address" etc.
+  entity    String   // "station" | "address" | "user"
+  entityId  String
+  details   Json?    // Additional details about the action
+  ipAddress String?
+  userAgent String?
+  timestamp DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  station   PoliceStation? @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  
+  @@map("audit_logs")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  isRevoked Boolean  @default(false)
+  
+  @@map("refresh_tokens")
+}
