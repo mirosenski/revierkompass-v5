@@ -95,11 +95,30 @@ const AdminDashboard: React.FC = () => {
     try {
       const response = await fetch('/data/polizeistationen.json');
       const data = await response.json();
-      setStations(data);
-      setFilteredStations(data);
+      
+      // Transformiere die deutschen Feldnamen in die erwartete englische Struktur
+      const transformedStations = data.polizeistationen.map((station: any) => ({
+        id: station.id,
+        name: station.name,
+        address: station.adresse,
+        coordinates: station.koordinaten,
+        phone: station.telefon,
+        email: station.email,
+        type: station.typ,
+        city: station.stadt,
+        district: station.zustaendigkeitsbereich,
+        openingHours: station.oeffnungszeiten,
+        emergency24h: station.notfall
+      }));
+      
+      setStations(transformedStations);
+      setFilteredStations(transformedStations);
     } catch (error) {
       console.error('Fehler beim Laden der Polizeistationen:', error);
       toast.error('Fehler beim Laden der Polizeistationen');
+      // Fallback: Setze leeres Array um Fehler zu vermeiden
+      setStations([]);
+      setFilteredStations([]);
     } finally {
       setLoading(false);
     }

@@ -58,15 +58,15 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const mapStyles = {
     streets: {
       name: 'Streets',
-      url: 'https://api.maptiler.com/maps/streets-v2/style.json?key=demo'
+      url: 'https://api.maptiler.com/maps/streets-v2/style.json?key=QSdqT57jTC1C80kuBccz'
     },
     satellite: {
       name: 'Satellite',
-      url: 'https://api.maptiler.com/maps/hybrid/style.json?key=demo'
+      url: 'https://api.maptiler.com/maps/hybrid/style.json?key=QSdqT57jTC1C80kuBccz'
     },
     terrain: {
       name: 'Terrain',
-      url: 'https://api.maptiler.com/maps/landscape/style.json?key=demo'
+      url: 'https://api.maptiler.com/maps/landscape/style.json?key=QSdqT57jTC1C80kuBccz'
     }
   };
 
