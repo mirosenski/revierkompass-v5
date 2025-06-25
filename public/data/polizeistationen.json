@@ -1,0 +1,1028 @@
+{
+  "polizeistationen": [
+    {
+      "id": "pp-stuttgart-1",
+      "name": "Polizeipräsidium Stuttgart",
+      "adresse": "Alexanderstraße 3, 70184 Stuttgart",
+      "koordinaten": {
+        "lat": 48.7758,
+        "lng": 9.1829
+      },
+      "telefon": "0711 8990-0",
+      "email": "stuttgart.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Stuttgart",
+      "zustaendigkeitsbereich": "Stuttgart",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-stuttgart-mitte",
+      "name": "Polizeirevier Stuttgart-Mitte",
+      "adresse": "Alexanderstraße 3, 70184 Stuttgart",
+      "koordinaten": {
+        "lat": 48.7758,
+        "lng": 9.1829
+      },
+      "telefon": "0711 8990-3100",
+      "email": "stuttgart-mitte.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Stuttgart",
+      "zustaendigkeitsbereich": "Stuttgart Mitte",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-stuttgart-west",
+      "name": "Polizeirevier Stuttgart-West",
+      "adresse": "Bebelstraße 27, 70193 Stuttgart",
+      "koordinaten": {
+        "lat": 48.7648,
+        "lng": 9.1553
+      },
+      "telefon": "0711 8990-3200",
+      "email": "stuttgart-west.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Stuttgart",
+      "zustaendigkeitsbereich": "Stuttgart West",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-stuttgart-ost",
+      "name": "Polizeirevier Stuttgart-Ost",
+      "adresse": "Ostendstraße 76, 70188 Stuttgart",
+      "koordinaten": {
+        "lat": 48.7909,
+        "lng": 9.2158
+      },
+      "telefon": "0711 8990-3300",
+      "email": "stuttgart-ost.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Stuttgart",
+      "zustaendigkeitsbereich": "Stuttgart Ost",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-stuttgart-nord",
+      "name": "Polizeirevier Stuttgart-Nord",
+      "adresse": "Löwentorstraße 4, 70376 Stuttgart",
+      "koordinaten": {
+        "lat": 48.8019,
+        "lng": 9.1829
+      },
+      "telefon": "0711 8990-3400",
+      "email": "stuttgart-nord.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Stuttgart",
+      "zustaendigkeitsbereich": "Stuttgart Nord",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-stuttgart-sued",
+      "name": "Polizeirevier Stuttgart-Süd",
+      "adresse": "Tübinger Straße 99, 70178 Stuttgart",
+      "koordinaten": {
+        "lat": 48.7558,
+        "lng": 9.1829
+      },
+      "telefon": "0711 8990-3500",
+      "email": "stuttgart-sued.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Stuttgart",
+      "zustaendigkeitsbereich": "Stuttgart Süd",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-mannheim-1",
+      "name": "Polizeipräsidium Mannheim",
+      "adresse": "L 6, 1, 68161 Mannheim",
+      "koordinaten": {
+        "lat": 49.4875,
+        "lng": 8.4660
+      },
+      "telefon": "0621 174-0",
+      "email": "mannheim.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Mannheim",
+      "zustaendigkeitsbereich": "Mannheim, Heidelberg, Rhein-Neckar-Kreis",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-mannheim-mitte",
+      "name": "Polizeirevier Mannheim-Mitte",
+      "adresse": "L 6, 1, 68161 Mannheim",
+      "koordinaten": {
+        "lat": 49.4875,
+        "lng": 8.4660
+      },
+      "telefon": "0621 174-3330",
+      "email": "mannheim-mitte.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Mannheim",
+      "zustaendigkeitsbereich": "Mannheim Mitte",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-mannheim-neckarstadt",
+      "name": "Polizeirevier Mannheim-Neckarstadt",
+      "adresse": "Dammstraße 30, 68169 Mannheim",
+      "koordinaten": {
+        "lat": 49.5020,
+        "lng": 8.4778
+      },
+      "telefon": "0621 174-3310",
+      "email": "mannheim-neckarstadt.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Mannheim",
+      "zustaendigkeitsbereich": "Mannheim Neckarstadt",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-heidelberg",
+      "name": "Polizeirevier Heidelberg",
+      "adresse": "Römerstraße 2-4, 69115 Heidelberg",
+      "koordinaten": {
+        "lat": 49.4093,
+        "lng": 8.6947
+      },
+      "telefon": "06221 99-0",
+      "email": "heidelberg.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Heidelberg",
+      "zustaendigkeitsbereich": "Heidelberg",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-karlsruhe-1",
+      "name": "Polizeipräsidium Karlsruhe",
+      "adresse": "Markgrafenstraße 69, 76133 Karlsruhe",
+      "koordinaten": {
+        "lat": 49.0069,
+        "lng": 8.4037
+      },
+      "telefon": "0721 666-0",
+      "email": "karlsruhe.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Karlsruhe",
+      "zustaendigkeitsbereich": "Karlsruhe, Landkreis Karlsruhe",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-karlsruhe-west",
+      "name": "Polizeirevier Karlsruhe-West",
+      "adresse": "Hans-Sachs-Straße 2, 76133 Karlsruhe",
+      "koordinaten": {
+        "lat": 49.0049,
+        "lng": 8.3800
+      },
+      "telefon": "0721 666-3311",
+      "email": "karlsruhe-west.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Karlsruhe",
+      "zustaendigkeitsbereich": "Karlsruhe West",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-karlsruhe-ost",
+      "name": "Polizeirevier Karlsruhe-Ost",
+      "adresse": "Liebigstraße 5, 76135 Karlsruhe",
+      "koordinaten": {
+        "lat": 49.0089,
+        "lng": 8.4237
+      },
+      "telefon": "0721 666-3411",
+      "email": "karlsruhe-ost.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Karlsruhe",
+      "zustaendigkeitsbereich": "Karlsruhe Ost",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-pforzheim-1",
+      "name": "Polizeipräsidium Pforzheim",
+      "adresse": "Jahnstraße 52, 75173 Pforzheim",
+      "koordinaten": {
+        "lat": 48.8908,
+        "lng": 8.7003
+      },
+      "telefon": "07231 186-0",
+      "email": "pforzheim.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Pforzheim",
+      "zustaendigkeitsbereich": "Pforzheim, Enzkreis, Calw",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-pforzheim",
+      "name": "Polizeirevier Pforzheim",
+      "adresse": "Jahnstraße 52, 75173 Pforzheim",
+      "koordinaten": {
+        "lat": 48.8908,
+        "lng": 8.7003
+      },
+      "telefon": "07231 186-3311",
+      "email": "pforzheim.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Pforzheim",
+      "zustaendigkeitsbereich": "Pforzheim",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-freiburg-1",
+      "name": "Polizeipräsidium Freiburg",
+      "adresse": "Bismarckallee 5, 79098 Freiburg",
+      "koordinaten": {
+        "lat": 47.9960,
+        "lng": 7.8494
+      },
+      "telefon": "0761 882-0",
+      "email": "freiburg.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Freiburg",
+      "zustaendigkeitsbereich": "Freiburg, Breisgau-Hochschwarzwald, Emmendingen",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-freiburg-nord",
+      "name": "Polizeirevier Freiburg-Nord",
+      "adresse": "Bismarckallee 5, 79098 Freiburg",
+      "koordinaten": {
+        "lat": 47.9960,
+        "lng": 7.8494
+      },
+      "telefon": "0761 882-3100",
+      "email": "freiburg-nord.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Freiburg",
+      "zustaendigkeitsbereich": "Freiburg Nord",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-freiburg-sued",
+      "name": "Polizeirevier Freiburg-Süd",
+      "adresse": "Weismannstraße 8, 79106 Freiburg",
+      "koordinaten": {
+        "lat": 47.9789,
+        "lng": 7.8572
+      },
+      "telefon": "0761 882-3200",
+      "email": "freiburg-sued.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Freiburg",
+      "zustaendigkeitsbereich": "Freiburg Süd",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-konstanz-1",
+      "name": "Polizeipräsidium Konstanz",
+      "adresse": "Spanierstraße 7/1, 78467 Konstanz",
+      "koordinaten": {
+        "lat": 47.6779,
+        "lng": 9.1732
+      },
+      "telefon": "07531 995-0",
+      "email": "konstanz.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Konstanz",
+      "zustaendigkeitsbereich": "Konstanz, Bodenseekreis, Sigmaringen",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-konstanz",
+      "name": "Polizeirevier Konstanz",
+      "adresse": "Spanierstraße 7/1, 78467 Konstanz",
+      "koordinaten": {
+        "lat": 47.6779,
+        "lng": 9.1732
+      },
+      "telefon": "07531 995-2222",
+      "email": "konstanz.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Konstanz",
+      "zustaendigkeitsbereich": "Konstanz",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-offenburg-1",
+      "name": "Polizeipräsidium Offenburg",
+      "adresse": "Okenstraße 4, 77652 Offenburg",
+      "koordinaten": {
+        "lat": 48.4735,
+        "lng": 7.9417
+      },
+      "telefon": "0781 21-0",
+      "email": "offenburg.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Offenburg",
+      "zustaendigkeitsbereich": "Offenburg, Ortenaukreis",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-offenburg",
+      "name": "Polizeirevier Offenburg",
+      "adresse": "Okenstraße 4, 77652 Offenburg",
+      "koordinaten": {
+        "lat": 48.4735,
+        "lng": 7.9417
+      },
+      "telefon": "0781 21-2200",
+      "email": "offenburg.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Offenburg",
+      "zustaendigkeitsbereich": "Offenburg",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-aalen-1",
+      "name": "Polizeipräsidium Aalen",
+      "adresse": "Gartenstraße 101, 73430 Aalen",
+      "koordinaten": {
+        "lat": 48.8379,
+        "lng": 10.0933
+      },
+      "telefon": "07361 524-0",
+      "email": "aalen.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Aalen",
+      "zustaendigkeitsbereich": "Ostalbkreis",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-aalen",
+      "name": "Polizeirevier Aalen",
+      "adresse": "Gartenstraße 101, 73430 Aalen",
+      "koordinaten": {
+        "lat": 48.8379,
+        "lng": 10.0933
+      },
+      "telefon": "07361 524-2333",
+      "email": "aalen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Aalen",
+      "zustaendigkeitsbereich": "Aalen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-heilbronn-1",
+      "name": "Polizeipräsidium Heilbronn",
+      "adresse": "Rollwagstraße 3, 74072 Heilbronn",
+      "koordinaten": {
+        "lat": 49.1427,
+        "lng": 9.2109
+      },
+      "telefon": "07131 104-0",
+      "email": "heilbronn.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Heilbronn",
+      "zustaendigkeitsbereich": "Heilbronn, Landkreis Heilbronn, Hohenlohekreis, Main-Tauber-Kreis, Neckar-Odenwald-Kreis",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-heilbronn",
+      "name": "Polizeirevier Heilbronn",
+      "adresse": "Rollwagstraße 3, 74072 Heilbronn",
+      "koordinaten": {
+        "lat": 49.1427,
+        "lng": 9.2109
+      },
+      "telefon": "07131 104-2500",
+      "email": "heilbronn.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Heilbronn",
+      "zustaendigkeitsbereich": "Heilbronn",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-ludwigsburg-1",
+      "name": "Polizeipräsidium Ludwigsburg",
+      "adresse": "Hindenburgstraße 55, 71638 Ludwigsburg",
+      "koordinaten": {
+        "lat": 48.8975,
+        "lng": 9.1906
+      },
+      "telefon": "07141 18-0",
+      "email": "ludwigsburg.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Ludwigsburg",
+      "zustaendigkeitsbereich": "Ludwigsburg, Landkreis Ludwigsburg",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-ludwigsburg",
+      "name": "Polizeirevier Ludwigsburg",
+      "adresse": "Hindenburgstraße 55, 71638 Ludwigsburg",
+      "koordinaten": {
+        "lat": 48.8975,
+        "lng": 9.1906
+      },
+      "telefon": "07141 18-5353",
+      "email": "ludwigsburg.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Ludwigsburg",
+      "zustaendigkeitsbereich": "Ludwigsburg",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-reutlingen-1",
+      "name": "Polizeipräsidium Reutlingen",
+      "adresse": "Ringelbachstraße 124, 72760 Reutlingen",
+      "koordinaten": {
+        "lat": 48.4919,
+        "lng": 9.2044
+      },
+      "telefon": "07121 942-0",
+      "email": "reutlingen.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Reutlingen",
+      "zustaendigkeitsbereich": "Reutlingen, Landkreis Reutlingen, Tübingen, Zollernalbkreis",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-reutlingen",
+      "name": "Polizeirevier Reutlingen",
+      "adresse": "Ringelbachstraße 124, 72760 Reutlingen",
+      "koordinaten": {
+        "lat": 48.4919,
+        "lng": 9.2044
+      },
+      "telefon": "07121 942-3300",
+      "email": "reutlingen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Reutlingen",
+      "zustaendigkeitsbereich": "Reutlingen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-tuebingen",
+      "name": "Polizeirevier Tübingen",
+      "adresse": "Mühlbachäckerstraße 6, 72072 Tübingen",
+      "koordinaten": {
+        "lat": 48.5216,
+        "lng": 9.0576
+      },
+      "telefon": "07071 972-8660",
+      "email": "tuebingen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Tübingen",
+      "zustaendigkeitsbereich": "Tübingen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "pp-ulm-1",
+      "name": "Polizeipräsidium Ulm",
+      "adresse": "Münsterplatz 3, 89073 Ulm",
+      "koordinaten": {
+        "lat": 48.3984,
+        "lng": 9.9914
+      },
+      "telefon": "0731 188-0",
+      "email": "ulm.pp@polizei.bwl.de",
+      "typ": "Präsidium",
+      "stadt": "Ulm",
+      "zustaendigkeitsbereich": "Ulm, Alb-Donau-Kreis, Biberach",
+      "oeffnungszeiten": "24/7",
+      "notfall": true
+    },
+    {
+      "id": "rev-ulm",
+      "name": "Polizeirevier Ulm",
+      "adresse": "Münsterplatz 3, 89073 Ulm",
+      "koordinaten": {
+        "lat": 48.3984,
+        "lng": 9.9914
+      },
+      "telefon": "0731 188-3312",
+      "email": "ulm.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Ulm",
+      "zustaendigkeitsbereich": "Ulm",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-ravensburg",
+      "name": "Polizeirevier Ravensburg",
+      "adresse": "Gartenstraße 96, 88212 Ravensburg",
+      "koordinaten": {
+        "lat": 47.7814,
+        "lng": 9.6134
+      },
+      "telefon": "0751 803-6666",
+      "email": "ravensburg.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Ravensburg",
+      "zustaendigkeitsbereich": "Ravensburg",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-friedrichshafen",
+      "name": "Polizeirevier Friedrichshafen",
+      "adresse": "Ailinger Straße 128, 88046 Friedrichshafen",
+      "koordinaten": {
+        "lat": 47.6540,
+        "lng": 9.4741
+      },
+      "telefon": "07541 701-0",
+      "email": "friedrichshafen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Friedrichshafen",
+      "zustaendigkeitsbereich": "Friedrichshafen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-villingen-schwenningen",
+      "name": "Polizeirevier Villingen-Schwenningen",
+      "adresse": "Warenburgstraße 17, 78050 Villingen-Schwenningen",
+      "koordinaten": {
+        "lat": 48.0581,
+        "lng": 8.4593
+      },
+      "telefon": "07721 601-0",
+      "email": "villingen-schwenningen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Villingen-Schwenningen",
+      "zustaendigkeitsbereich": "Villingen-Schwenningen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-bad-mergentheim",
+      "name": "Polizeirevier Bad Mergentheim",
+      "adresse": "Wachbacher Straße 83, 97980 Bad Mergentheim",
+      "koordinaten": {
+        "lat": 49.4914,
+        "lng": 9.7742
+      },
+      "telefon": "07931 54-0",
+      "email": "bad-mergentheim.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Bad Mergentheim",
+      "zustaendigkeitsbereich": "Bad Mergentheim, Main-Tauber-Kreis",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-weinheim",
+      "name": "Polizeirevier Weinheim",
+      "adresse": "Obertorstraße 3, 69469 Weinheim",
+      "koordinaten": {
+        "lat": 49.5481,
+        "lng": 8.6695
+      },
+      "telefon": "06201 1003-0",
+      "email": "weinheim.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Weinheim",
+      "zustaendigkeitsbereich": "Weinheim",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-schwetzingen",
+      "name": "Polizeirevier Schwetzingen",
+      "adresse": "Kurfürsten-Anlage 34, 68723 Schwetzingen",
+      "koordinaten": {
+        "lat": 49.3847,
+        "lng": 8.5761
+      },
+      "telefon": "06202 288-0",
+      "email": "schwetzingen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Schwetzingen",
+      "zustaendigkeitsbereich": "Schwetzingen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-sinsheim",
+      "name": "Polizeirevier Sinsheim",
+      "adresse": "Allee 7, 74889 Sinsheim",
+      "koordinaten": {
+        "lat": 49.2480,
+        "lng": 8.8795
+      },
+      "telefon": "07261 690-0",
+      "email": "sinsheim.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Sinsheim",
+      "zustaendigkeitsbereich": "Sinsheim",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-wiesloch",
+      "name": "Polizeirevier Wiesloch",
+      "adresse": "Walldorfer Straße 19, 69168 Wiesloch",
+      "koordinaten": {
+        "lat": 49.2947,
+        "lng": 8.6982
+      },
+      "telefon": "06222 571-80",
+      "email": "wiesloch.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Wiesloch",
+      "zustaendigkeitsbereich": "Wiesloch",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-bruchsal",
+      "name": "Polizeirevier Bruchsal",
+      "adresse": "Kaiserstraße 45, 76646 Bruchsal",
+      "koordinaten": {
+        "lat": 49.1244,
+        "lng": 8.5976
+      },
+      "telefon": "07251 726-0",
+      "email": "bruchsal.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Bruchsal",
+      "zustaendigkeitsbereich": "Bruchsal",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-ettlingen",
+      "name": "Polizeirevier Ettlingen",
+      "adresse": "Pforzheimer Straße 13, 76275 Ettlingen",
+      "koordinaten": {
+        "lat": 48.9447,
+        "lng": 8.4087
+      },
+      "telefon": "07243 32200",
+      "email": "ettlingen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Ettlingen",
+      "zustaendigkeitsbereich": "Ettlingen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-baden-baden",
+      "name": "Polizeirevier Baden-Baden",
+      "adresse": "Stephanienstraße 14, 76530 Baden-Baden",
+      "koordinaten": {
+        "lat": 48.7584,
+        "lng": 8.2397
+      },
+      "telefon": "07221 680-0",
+      "email": "baden-baden.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Baden-Baden",
+      "zustaendigkeitsbereich": "Baden-Baden",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-rastatt",
+      "name": "Polizeirevier Rastatt",
+      "adresse": "Karlsruher Straße 60, 76437 Rastatt",
+      "koordinaten": {
+        "lat": 48.8587,
+        "lng": 8.2053
+      },
+      "telefon": "07222 761-0",
+      "email": "rastatt.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Rastatt",
+      "zustaendigkeitsbereich": "Rastatt",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-calw",
+      "name": "Polizeirevier Calw",
+      "adresse": "Stammheimer Straße 10, 75365 Calw",
+      "koordinaten": {
+        "lat": 48.7147,
+        "lng": 8.7395
+      },
+      "telefon": "07051 161-0",
+      "email": "calw.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Calw",
+      "zustaendigkeitsbereich": "Calw",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-freudenstadt",
+      "name": "Polizeirevier Freudenstadt",
+      "adresse": "Stuttgarter Straße 60, 72250 Freudenstadt",
+      "koordinaten": {
+        "lat": 48.4647,
+        "lng": 8.4115
+      },
+      "telefon": "07441 536-0",
+      "email": "freudenstadt.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Freudenstadt",
+      "zustaendigkeitsbereich": "Freudenstadt",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-horb",
+      "name": "Polizeirevier Horb",
+      "adresse": "Neckarstraße 100, 72160 Horb am Neckar",
+      "koordinaten": {
+        "lat": 48.4478,
+        "lng": 8.6924
+      },
+      "telefon": "07451 96-0",
+      "email": "horb.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Horb am Neckar",
+      "zustaendigkeitsbereich": "Horb am Neckar",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-nagold",
+      "name": "Polizeirevier Nagold",
+      "adresse": "Freudenstädter Straße 96, 72202 Nagold",
+      "koordinaten": {
+        "lat": 48.5520,
+        "lng": 8.7240
+      },
+      "telefon": "07452 93-0",
+      "email": "nagold.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Nagold",
+      "zustaendigkeitsbereich": "Nagold",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-emmendingen",
+      "name": "Polizeirevier Emmendingen",
+      "adresse": "Schwarzwaldstraße 86, 79312 Emmendingen",
+      "koordinaten": {
+        "lat": 48.1214,
+        "lng": 7.8512
+      },
+      "telefon": "07641 582-0",
+      "email": "emmendingen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Emmendingen",
+      "zustaendigkeitsbereich": "Emmendingen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-lahr",
+      "name": "Polizeirevier Lahr",
+      "adresse": "Wallstraße 1, 77933 Lahr",
+      "koordinaten": {
+        "lat": 48.3389,
+        "lng": 7.8728
+      },
+      "telefon": "07821 277-0",
+      "email": "lahr.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Lahr",
+      "zustaendigkeitsbereich": "Lahr",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-kehl",
+      "name": "Polizeirevier Kehl",
+      "adresse": "Großherzog-Friedrich-Straße 9, 77694 Kehl",
+      "koordinaten": {
+        "lat": 48.5700,
+        "lng": 7.8162
+      },
+      "telefon": "07851 894-0",
+      "email": "kehl.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Kehl",
+      "zustaendigkeitsbereich": "Kehl",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-achern",
+      "name": "Polizeirevier Achern",
+      "adresse": "Oberkircher Straße 5, 77855 Achern",
+      "koordinaten": {
+        "lat": 48.6280,
+        "lng": 8.0740
+      },
+      "telefon": "07841 7066-0",
+      "email": "achern.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Achern",
+      "zustaendigkeitsbereich": "Achern",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-oberkirch",
+      "name": "Polizeirevier Oberkirch",
+      "adresse": "Bahnhofstraße 16, 77704 Oberkirch",
+      "koordinaten": {
+        "lat": 48.5420,
+        "lng": 8.0560
+      },
+      "telefon": "07802 9110-0",
+      "email": "oberkirch.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Oberkirch",
+      "zustaendigkeitsbereich": "Oberkirch",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-haslach",
+      "name": "Polizeirevier Haslach",
+      "adresse": "Wilhelmstraße 96, 77716 Haslach im Kinzigtal",
+      "koordinaten": {
+        "lat": 48.2790,
+        "lng": 8.0890
+      },
+      "telefon": "07832 975-0",
+      "email": "haslach.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Haslach im Kinzigtal",
+      "zustaendigkeitsbereich": "Haslach im Kinzigtal",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-loerrach",
+      "name": "Polizeirevier Lörrach",
+      "adresse": "Spitalstraße 30, 79539 Lörrach",
+      "koordinaten": {
+        "lat": 47.6156,
+        "lng": 7.6615
+      },
+      "telefon": "07621 176-0",
+      "email": "loerrach.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Lörrach",
+      "zustaendigkeitsbereich": "Lörrach",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-weil-am-rhein",
+      "name": "Polizeirevier Weil am Rhein",
+      "adresse": "Hauptstraße 323, 79576 Weil am Rhein",
+      "koordinaten": {
+        "lat": 47.5936,
+        "lng": 7.6196
+      },
+      "telefon": "07621 9797-0",
+      "email": "weil-am-rhein.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Weil am Rhein",
+      "zustaendigkeitsbereich": "Weil am Rhein",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-rheinfelden",
+      "name": "Polizeirevier Rheinfelden",
+      "adresse": "Friedrichstraße 50, 79618 Rheinfelden",
+      "koordinaten": {
+        "lat": 47.5575,
+        "lng": 7.7891
+      },
+      "telefon": "07623 740-0",
+      "email": "rheinfelden.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Rheinfelden",
+      "zustaendigkeitsbereich": "Rheinfelden",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-schoenau",
+      "name": "Polizeirevier Schönau",
+      "adresse": "Talstraße 17, 79677 Schönau im Schwarzwald",
+      "koordinaten": {
+        "lat": 47.7942,
+        "lng": 7.9009
+      },
+      "telefon": "07673 8890-0",
+      "email": "schoenau.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Schönau im Schwarzwald",
+      "zustaendigkeitsbereich": "Schönau im Schwarzwald",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-titisee-neustadt",
+      "name": "Polizeirevier Titisee-Neustadt",
+      "adresse": "Strandbadstraße 4, 79822 Titisee-Neustadt",
+      "koordinaten": {
+        "lat": 47.9135,
+        "lng": 8.2086
+      },
+      "telefon": "07651 9336-0",
+      "email": "titisee-neustadt.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Titisee-Neustadt",
+      "zustaendigkeitsbereich": "Titisee-Neustadt",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-waldkirch",
+      "name": "Polizeirevier Waldkirch",
+      "adresse": "Lange Straße 52, 79183 Waldkirch",
+      "koordinaten": {
+        "lat": 48.0953,
+        "lng": 7.9644
+      },
+      "telefon": "07681 4074-0",
+      "email": "waldkirch.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Waldkirch",
+      "zustaendigkeitsbereich": "Waldkirch",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-sigmaringen",
+      "name": "Polizeirevier Sigmaringen",
+      "adresse": "Hohenzollernstraße 27, 72488 Sigmaringen",
+      "koordinaten": {
+        "lat": 48.0896,
+        "lng": 9.2133
+      },
+      "telefon": "07571 104-0",
+      "email": "sigmaringen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Sigmaringen",
+      "zustaendigkeitsbereich": "Sigmaringen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-uberlingen",
+      "name": "Polizeirevier Überlingen",
+      "adresse": "Bahnhofstraße 15, 88662 Überlingen",
+      "koordinaten": {
+        "lat": 47.7697,
+        "lng": 9.1610
+      },
+      "telefon": "07551 804-0",
+      "email": "ueberlingen.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Überlingen",
+      "zustaendigkeitsbereich": "Überlingen",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    },
+    {
+      "id": "rev-stockach",
+      "name": "Polizeirevier Stockach",
+      "adresse": "Hauptstraße 26, 78333 Stockach",
+      "koordinaten": {
+        "lat": 47.8516,
+        "lng": 9.0097
+      },
+      "telefon": "07771 9391-0",
+      "email": "stockach.prev@polizei.bwl.de",
+      "typ": "Revier",
+      "stadt": "Stockach",
+      "zustaendigkeitsbereich": "Stockach",
+      "oeffnungszeiten": "Mo-Fr 8:00-16:00",
+      "notfall": false
+    }
+  ]
+}
