@@ -45,7 +45,7 @@ const DEMO_USERS: Record<string, { password: string; user: User }> = {
       lastName: 'Mustermann',
       email: 'admin@polizei-bw.de',
       role: 'admin',
-      avatar: '/images/police-badge.jpg',
+      avatar: '/favicon.ico',
       isAdmin: true,
       lastLogin: new Date()
     }

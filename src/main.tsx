@@ -34,7 +34,7 @@ const initializeApp = () => {
   // Set favicon and meta tags
   const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
   if (favicon) {
-    favicon.href = '/images/police-badge.jpg';
+    favicon.href = '/favicon.ico';
   }
 
   const metaDescription = document.querySelector('meta[name="description"]') as HTMLMetaElement;
