@@ -29,6 +29,7 @@ const ModernNavigation: React.FC<ModernNavigationProps> = ({ totalSelected, onCo
 
   return (
     <>
+      {/* Desktop: Split View */}
       {isDesktop && (
         <div className="grid grid-cols-3 gap-8">
           <div className="col-span-2">{children}</div>
@@ -48,9 +49,9 @@ const ModernNavigation: React.FC<ModernNavigationProps> = ({ totalSelected, onCo
         </div>
       )}
 
+      {/* Mobile/Tablet: Kombinierte Navigation */}
       {isMobile && (
         <>
-          <StickyBottomBar totalSelected={totalSelected} onContinue={onContinue} disabled={totalSelected === 0} />
           <SmartScrollIndicator totalSelected={totalSelected} onContinue={onContinue} />
           <FloatingActionMenu totalSelected={totalSelected} onContinue={onContinue} />
         </>
