@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, MapPin, Plus, Edit2, Trash2, Building, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
+import { useWizardStore } from '@/store/useWizardStore';
+import { useStationStore } from '@/store/useStationStore'
 import { toast } from 'react-hot-toast';
 
 interface Station {
@@ -23,46 +25,10 @@ interface CustomAddress {
 
 const Step2TabSystemSimple: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'stations' | 'custom'>('stations');
-  const [stations] = useState<Station[]>([
-    {
-      id: '1',
-      name: 'Polizeipräsidium Stuttgart',
-      address: 'Heslacher Tunnel 1, 70173 Stuttgart',
-      city: 'Stuttgart',
-      type: 'Präsidium'
-    },
-    {
-      id: '2',
-      name: 'Polizeirevier Stuttgart-Mitte',
-      address: 'Wilhelmsplatz 3, 70372 Stuttgart',
-      city: 'Stuttgart',
-      type: 'Revier'
-    },
-    {
-      id: '3',
-      name: 'Polizeirevier Stuttgart-Nord',
-      address: 'Löwentorstraße 16, 70376 Stuttgart',
-      city: 'Stuttgart',
-      type: 'Revier'
-    },
-    {
-      id: '4',
-      name: 'Polizeipräsidium Karlsruhe',
-      address: 'Hirschstraße 25, 76133 Karlsruhe',
-      city: 'Karlsruhe',
-      type: 'Präsidium'
-    },
-    {
-      id: '5',
-      name: 'Polizeirevier Karlsruhe-Mitte',
-      address: 'Kaiserstraße 167, 76133 Karlsruhe',
-      city: 'Karlsruhe',
-      type: 'Revier'
-    }
-  ]);
+  const { stations, loadStations, isLoading, error } = useStationStore();
   
   const [customAddresses, setCustomAddresses] = useState<CustomAddress[]>([]);
-  const [selectedStations, setSelectedStations] = useState<string[]>([]);
+  const { selectedStations, setSelectedStations } = useWizardStore();
   const [selectedCustom, setSelectedCustom] = useState<string[]>([]);
   const [cityFilter, setCityFilter] = useState('');
   
@@ -76,6 +42,11 @@ const Step2TabSystemSimple: React.FC = () => {
   });
 
   const { setWizardStep } = useAppStore();
+
+  // Load stations on mount
+  useEffect(() => {
+    loadStations()
+  }, [])
 
   // Load custom addresses from localStorage
   useEffect(() => {
@@ -95,11 +66,10 @@ const Step2TabSystemSimple: React.FC = () => {
   };
 
   const handleStationToggle = (stationId: string) => {
-    setSelectedStations(prev => 
-      prev.includes(stationId)
-        ? prev.filter(id => id !== stationId)
-        : [...prev, stationId]
-    );
+    const updated = selectedStations.includes(stationId)
+      ? selectedStations.filter(id => id !== stationId)
+      : [...selectedStations, stationId];
+    setSelectedStations(updated);
   };
 
   const handleCustomToggle = (addressId: string) => {
@@ -171,6 +141,8 @@ const Step2TabSystemSimple: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {isLoading && <div className="loading-indicator">Lade Stationen...</div>}
+      {error && <div className="error-message">Fehler: {error}</div>}
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
