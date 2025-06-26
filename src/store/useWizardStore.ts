@@ -16,6 +16,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
     setSelectedStations: (stations: string[]) => void
     setSelectedCustomAddresses: (addresses: string[]) => void
     resetWizard: () => void
+    resetAll: () => void
   }
 
 export const useWizardStore = create<WizardStore>()(
@@ -47,7 +48,18 @@ export const useWizardStore = create<WizardStore>()(
           selectedReviereIds: [],
           selectedStations: [],
           selectedCustomAddresses: []
-        })
+        }),
+      resetAll: () => {
+        set({
+          currentStep: 1,
+          startAddress: '',
+          selectedPraesidiumId: null,
+          selectedReviereIds: [],
+          selectedStations: [],
+          selectedCustomAddresses: []
+        });
+        console.log('🔄 Wizard Store: Vollständiger Reset durchgeführt');
+      }
     }),
     {
       name: 'wizard-store',

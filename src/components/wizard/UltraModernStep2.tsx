@@ -123,6 +123,15 @@ const UltraModernStep2: React.FC = () => {
     // Reset beim ersten Laden
     resetOnStart();
     
+    // Globaler Reset-Event-Listener
+    const handleGlobalReset = () => {
+      console.log('UltraModernStep2: Global reset event received');
+      resetOnStart();
+    };
+    
+    // Event-Listener für globalen Reset
+    window.addEventListener('revierkompass:reset', handleGlobalReset);
+    
     // Optional: Reset bei Seitenneuladeung (wenn gewünscht)
     const handleBeforeUnload = () => {
       // Hier könnte man noch zusätzliche Cleanup-Logik hinzufügen
@@ -133,6 +142,7 @@ const UltraModernStep2: React.FC = () => {
     
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('revierkompass:reset', handleGlobalReset);
     };
   }, [loadStations]);
   

@@ -91,6 +91,9 @@ export interface AppState {
   setRouteResults: (results: RouteResult[]) => void;
   resetWizard: () => void;
   
+  // Vollständiger Reset aller Daten
+  resetAll: () => void;
+  
   // Custom Addresses
   customAddresses: CustomAddress[];
   addCustomAddress: (address: Omit<CustomAddress, 'id' | 'createdAt' | 'address'>) => void;
@@ -172,6 +175,38 @@ export const useAppStore = create<AppState>()(
         })),
       resetWizard: () =>
         set({ wizard: initialWizardState }),
+      
+      // Vollständiger Reset aller Daten
+      resetAll: () => {
+        // Reset Wizard State
+        set({ wizard: initialWizardState });
+        
+        // Reset Custom Addresses
+        set({ customAddresses: [] });
+        
+        // Reset Loading States
+        set({ 
+          isLoadingGeocode: false,
+          isLoadingRoutes: false,
+          isCalculating: false
+        });
+        
+        // Reset Map State
+        set({ 
+          mapCenter: BW_CENTER,
+          mapZoom: 8,
+          mapPitch: 0,
+          mapBearing: 0
+        });
+        
+        // Reset Error States
+        set({ error: null });
+        
+        // Reset Station Data
+        set({ stations: [] });
+        
+        console.log('🔄 App Store: Vollständiger Reset durchgeführt');
+      },
       
       // Custom Addresses
       customAddresses: [],

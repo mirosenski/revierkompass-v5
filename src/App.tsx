@@ -11,7 +11,7 @@ import AdminDashboard from '@/components/admin/AdminDashboard';
 
 function App() {
   const [currentView, setCurrentView] = useState<'wizard' | 'login' | 'admin'>('wizard');
-  const { isDarkMode, setWizardStep, resetWizard } = useAppStore();
+  const { isDarkMode, setWizardStep, resetAll } = useAppStore();
   const { isAuthenticated, isAdmin } = useAuthStore();
 
   // Beim Start der Anwendung immer zum Wizard mit Schritt 1 (Adressen-Startseite) navigieren
@@ -40,8 +40,11 @@ function App() {
   const handleRestart = () => {
     console.log('🔄 RevierKompass Neustart wird durchgeführt...');
     
-    // Alle Stores zurücksetzen
-    resetWizard();
+    // Alle Stores vollständig zurücksetzen
+    resetAll();
+    
+    // Globales Reset-Event triggern (für lokale States in Komponenten)
+    window.dispatchEvent(new CustomEvent('revierkompass:reset'));
     
     // Zum Wizard mit Schritt 1 navigieren
     setCurrentView('wizard');
