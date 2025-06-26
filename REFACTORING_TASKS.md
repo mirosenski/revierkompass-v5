@@ -8,21 +8,18 @@ Diese Datei enthält die detaillierten Aufgaben für das Refactoring der Wizard-
 ## 🔄 Phase 1: Step2 Refactoring
 
 ### Schritt 1.1: Step2 - Daten-Loading migrieren
-**Aufgabe:** Aktualisiere `Step2TabSystemSimple.tsx` um Stationsdaten aus `useStationStore` zu laden
+**Komponente:** `components/wizard/Step2TabSystemSimple.tsx`
 
-**Code zu ersetzen:**
+**Task:** 
 ```typescript
-// ALT: Hardcoded in Komponente
+// Veralteter Code:
 const [stations] = useState<Station[]>([
   // Hier steht der Hardcoded Array mit Demo-Daten
   { id: 1, name: "Station 1", type: "base", position: [50.1, 8.4] },
   // ...weitere Stationen
 ]);
-```
 
-**Neu zu implementieren:**
-```typescript
-// NEU: Store-basiert
+// Neuer Code:
 const { stations, loadStations, isLoading, error } = useStationStore();
 
 useEffect(() => {
@@ -30,130 +27,121 @@ useEffect(() => {
 }, []);
 ```
 
-**Erwartetes Ergebnis:**
-- Komponente verwendet Store-Daten statt Hardcoded-Werten
-- Stationsdaten werden asynchron geladen
-- Loading-Status wird korrekt angezeigt
+**Erwartung:**
+- Store-basiertes Laden der Stationsdaten
+- Loading-UI: `{isLoading && <LoadingSpinner />}`
+- Fehler-UI: `{error && <ErrorMessage>{error}</ErrorMessage>}`
 
-**Fehlerbehandlung:**
-- Bei Fehlern im `loadStations` wird `error` State gesetzt
-- Füge Fehler-UI hinzu: `{error && <div>Fehler beim Laden: {error}</div>}`
+**Test-Case:**
+- [ ] Beim Mount werden Stationsdaten geladen
+- [ ] Loading-UI erscheint während des Ladens
+- [ ] Fehler-UI bei API-Fehlern
 
 ---
 
 ### Schritt 1.2: Step2 - Selection-State migrieren
-**Aufgabe:** Ersetze den lokalen State `selectedStations` mit Store-Daten
+**Komponente:** `components/wizard/Step2TabSystemSimple.tsx`
 
-**Code zu ersetzen:**
+**Task:**
 ```typescript
-// ALT: Lokaler State
+// Veralteter Code:
 const [selectedStations, setSelectedStations] = useState<string[]>([]);
-```
 
-**Neu zu implementieren:**
-```typescript
-// NEU: Wizard-Store
+// Neuer Code:
 const { selectedStations, setSelectedStations } = useWizardStore();
 ```
 
-**Erwartetes Ergebnis:**
+**Erwartung:**
 - Auswahl wird im Store gespeichert statt lokal
 - Auswahl ist über mehrere Komponenten hinweg verfügbar
 - Props für Stationsauswahl werden nicht mehr benötigt
 
-**Fehlerbehandlung:**
-- Stelle sicher, dass `useWizardStore` initialisiert ist
-- Füge Typ-Checks hinzu: `if (!selectedStations) return <Loading />`
+**Test-Case:**
+- [ ] Auswahl wird im Store persistiert
+- [ ] Auswahl ist in anderen Komponenten verfügbar
+- [ ] Typ-Checks funktionieren: `if (!selectedStations) return <Loading />`
 
 ---
 
 ### Schritt 1.3: Step2 - Custom Addresses migrieren
-**Aufgabe:** Ersetze localStorage-Aufrufe mit AppStore-Methoden
+**Komponente:** `components/wizard/Step2TabSystemSimple.tsx`
 
-**Code zu ersetzen:**
+**Task:**
 ```typescript
-// ALT: localStorage direkt
+// Veralteter Code:
 const handleAddCustomAddress = (address: CustomAddress) => {
   const addresses = JSON.parse(localStorage.getItem('revierkompass_custom_addresses') || '[]');
   addresses.push(address);
   localStorage.setItem('revierkompass_custom_addresses', JSON.stringify(addresses));
   setCustomAddresses(addresses);
 };
-```
 
-**Neu zu implementieren:**
-```typescript
-// NEU: App-Store
+// Neuer Code:
 const { customAddresses, addCustomAddress } = useAppStore();
 
-// In der Handler-Funktion:
 const handleAddCustomAddress = (address: CustomAddress) => {
   addCustomAddress(address);
 };
 ```
 
-**Erwartetes Ergebnis:**
+**Erwartung:**
 - Custom Addresses werden im Store verwaltet
 - Keine direkten localStorage-Operationen mehr in der Komponente
 - Einheitliche Handhabung von Adressdaten
 
-**Fehlerbehandlung:**
-- Füge Typ-Checks für `customAddresses` hinzu
-- Handle Initialisierung: `if (!customAddresses) return <Loading />`
+**Test-Case:**
+- [ ] Adressen werden im Store gespeichert
+- [ ] Keine localStorage-Aufrufe mehr in der Komponente
+- [ ] Typ-Checks für `customAddresses` funktionieren
 
 ---
 
 ## 🔄 Phase 2: Step3 Refactoring
 
 ### Schritt 2.1: Step3 - Store-Daten nutzen
-**Aufgabe:** Aktualisiere `Step3PremiumExport.tsx` um Store-Daten zu verwenden
+**Komponente:** `components/wizard/Step3PremiumExport.tsx`
 
-**Code zu ersetzen:**
+**Task:**
 ```typescript
-// ALT: Lokaler State mit Demo-Daten
+// Veralteter Code:
 const [routeResults, setRouteResults] = useState<RouteResult[]>([
   // Demo-Routen
   { id: 1, distance: 150, duration: 45, stations: ["Station 1", "Station 2"] },
   // ...weitere Demo-Routen
 ]);
-```
 
-**Neu zu implementieren:**
-```typescript
-// NEU: Store-Daten nutzen
+// Neuer Code:
 const { selectedStations, selectedCustomAddresses } = useWizardStore();
 const { startAddress } = useAppStore();
 
 // Entferne den routeResults State
 ```
 
-**Erwartetes Ergebnis:**
+**Erwartung:**
 - Komponente nutzt aktuelle Daten aus Stores
 - Keine hardcoded Demo-Daten mehr
 - Daten werden aus den zentralen Stores abgerufen
 
-**Fehlerbehandlung:**
-- Füge Checks hinzu: `if (!selectedStations?.length) return <NoSelectionWarning />`
-- Füge Ladezustand hinzu: `if (isStationsLoading) return <Loading />`
+**Test-Case:**
+- [ ] Store-Daten werden korrekt gelesen
+- [ ] Keine Demo-Daten mehr vorhanden
+- [ ] Checks funktionieren: `if (!selectedStations?.length) return <NoSelectionWarning />`
 
 ---
 
 ### Schritt 2.2: Step3 - Echte Routenberechnung
-**Aufgabe:** Implementiere API-basierte Routenberechnung
+**Komponente:** `components/wizard/Step3PremiumExport.tsx`
 
-**Code zu ersetzen:**
+**Task:**
 ```typescript
-// ALT: Demo-Routen ohne echte Daten
+// Veralteter Code:
 useEffect(() => {
   // Generiert Demo-Routen
   const demoResults = generateDemoRoutes();
   setRouteResults(demoResults);
 }, []);
-```
 
-**Neu zu implementieren:**
-```typescript
-// NEU: Echte API-Berechnung
+// Neuer Code:
 const { selectedStations, selectedCustomAddresses } = useWizardStore();
 const { startAddress } = useAppStore();
 const [routeResults, setRouteResults] = useState<RouteResult[] | null>(null);
@@ -189,26 +177,27 @@ useEffect(() => {
 }, [startAddress, selectedStations, selectedCustomAddresses]);
 ```
 
-**Erwartetes Ergebnis:**
+**Erwartung:**
 - Echte Routenberechnung über API
 - Dynamische Updates bei Änderungen der Auswahl
 - Loading-Status während der Berechnung
 
-**Fehlerbehandlung:**
-- Try/Catch Block für API-Calls
-- Fehlermeldung anzeigen bei Problemen
-- Validierung der Eingabedaten vor dem API-Call
+**Test-Case:**
+- [ ] API-Calls werden korrekt ausgeführt
+- [ ] Loading-Status wird angezeigt
+- [ ] Fehlerbehandlung funktioniert
+- [ ] Dynamische Updates bei Datenänderungen
 
 ---
 
 ## 🔄 Phase 3: Admin-Integration
 
 ### Schritt 3.1: Admin-Integration - Admin-Komponenten-Scaffold
-**Aufgabe:** Erstelle Grundgerüst für Admin-Station-Management
+**Komponente:** `components/admin/AdminStationManagement.tsx` (neu erstellen)
 
-**Neu zu implementieren:**
+**Task:**
 ```typescript
-// components/admin/AdminStationManagement.tsx
+// Neue Datei erstellen:
 import React, { useState, useEffect } from 'react';
 import { useAdminStore } from '@/stores/adminStore';
 
@@ -296,18 +285,26 @@ const AdminStationManagement: React.FC = () => {
 export default AdminStationManagement;
 ```
 
-**Erwartetes Ergebnis:**
+**Erwartung:**
 - Grundlegende Admin-Komponente zum Verwalten von Stationen
 - Formular zum Erstellen neuer Stationen
 - Liste bestehender Stationen mit Lösch-Button
 - Integration mit `useAdminStore`
 
-**Fehlerbehandlung:**
-- Ladezustand anzeigen während Daten abgerufen werden
-- Fehlermeldungen bei API-Problemen
-- Disabled-Buttons während laufender Operationen
+**Test-Case:**
+- [ ] Komponente wird korrekt gerendert
+- [ ] Stationen werden geladen und angezeigt
+- [ ] Neue Stationen können erstellt werden
+- [ ] Stationen können gelöscht werden
+- [ ] Loading- und Error-States funktionieren
 
 ---
+
+## 🔄 Workflow-Tipp:
+1. **Task 1.1** an die AI senden
+2. **Rückmeldung prüfen** (Code + Erklärung)
+3. **Test schreiben** (z.B. mit Jest/React Testing Library)
+4. **Nächsten Task** erst dann senden
 
 ## 📋 Checkliste für jede Aufgabe
 
