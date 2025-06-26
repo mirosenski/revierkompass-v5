@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, MapPin, Plus, Edit2, Trash2, Building, ArrowRight, ChevronDown } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
-import { useWizardStore } from '@/store/useWizardStore';
 import { useStationStore } from '@/store/useStationStore';
 import { toast } from 'react-hot-toast';
 
@@ -20,8 +19,14 @@ const Step2TabSystemSimple: React.FC = () => {
   const { stations, loadStations, isLoading, error, getStationsByType, getReviereByPraesidium } = useStationStore();
   
   // Store-basierte Custom Addresses
-  const { customAddresses, addCustomAddress, deleteCustomAddress } = useAppStore();
-  const { selectedStations, setSelectedStations, selectedCustomAddresses, setSelectedCustomAddresses } = useWizardStore();
+  const {
+    customAddresses,
+    addCustomAddress,
+    deleteCustomAddress,
+    wizard: { selectedStations, selectedCustomAddresses },
+    setSelectedStations,
+    setSelectedCustomAddresses
+  } = useAppStore();
   
   // Akkordeon-Zustand für Präsidien
   const [expandedPraesidien, setExpandedPraesidien] = useState<string[]>([]);

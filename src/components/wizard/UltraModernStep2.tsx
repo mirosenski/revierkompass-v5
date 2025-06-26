@@ -6,7 +6,6 @@ import {
   List, Grid3X3, Map as MapIcon, X, Search, ArrowRight
 } from 'lucide-react';
 import { useStationStore } from '@/store/useStationStore';
-import { useWizardStore } from '@/store/useWizardStore';
 import { useAppStore } from '@/lib/store/app-store';
 import toast from 'react-hot-toast';
 import { onReset } from '@/lib/eventBus';
@@ -97,8 +96,15 @@ const UltraModernStep2: React.FC = () => {
 
   // Store-Hooks
   const { stations, getStationsByType, getReviereByPraesidium, loadStations } = useStationStore();
-  const { selectedStations, setSelectedStations, selectedCustomAddresses, setSelectedCustomAddresses } = useWizardStore();
-  const { customAddresses, addCustomAddress, deleteCustomAddress, setWizardStep } = useAppStore();
+  const {
+    wizard: { selectedStations, selectedCustomAddresses },
+    setSelectedStations,
+    setSelectedCustomAddresses,
+    customAddresses,
+    addCustomAddress,
+    deleteCustomAddress,
+    setWizardStep
+  } = useAppStore();
   
   useEffect(() => {
     console.log('UltraModernStep2: Loading stations...');

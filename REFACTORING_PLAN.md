@@ -63,7 +63,7 @@ const [selectedStations, setSelectedStations] = useState<string[]>([]);
 
 // NEU: Store-basiert
 const { stations, loadStations, getStationsByType } = useStationStore();
-const { selectedStations, setSelectedStations } = useWizardStore();
+const { wizard: { selectedStations }, setSelectedStations } = useAppStore();
 ```
 
 ### Step3: Export
@@ -72,8 +72,9 @@ const { selectedStations, setSelectedStations } = useWizardStore();
 const [routeResults, setRouteResults] = useState<RouteResult[]>([]);
 
 // NEU: Store-basiert
-const { selectedStations, selectedCustomAddresses } = useWizardStore();
-const { startAddress } = useAppStore();
+const {
+  wizard: { startAddress, selectedStations, selectedCustomAddresses }
+} = useAppStore();
 // Echte Routenberechnung basierend auf Store-Daten
 ```
 
@@ -96,8 +97,8 @@ useEffect(() => { loadStations(); }, []);
 // ALT: Lokaler State
 const [selectedStations, setSelectedStations] = useState<string[]>([]);
 
-// NEU: Wizard-Store
-const { selectedStations, setSelectedStations } = useWizardStore();
+// NEU: App-Store
+const { wizard: { selectedStations }, setSelectedStations } = useAppStore();
 ```
 
 #### 1.3 Custom Addresses migrieren
@@ -114,7 +115,7 @@ const { customAddresses, addCustomAddress, deleteCustomAddress } = useAppStore()
 #### 2.1 Echte Daten verwenden
 ```typescript
 // Aus Stores lesen statt Demo-Daten
-const { selectedStations, selectedCustomAddresses } = useWizardStore();
+const { wizard: { selectedStations, selectedCustomAddresses } } = useAppStore();
 const { startAddress } = useAppStore();
 ```
 
@@ -140,7 +141,6 @@ const calculateRoutes = async () => {
 
 ### 1. Unit-Tests für Stores
 - `useStationStore` Tests
-- `useWizardStore` Tests
 - `useAppStore` Tests
 
 ### 2. Integration-Tests
@@ -190,8 +190,7 @@ const calculateRoutes = async () => {
 
 ### Schritt 1: Step2 Refactoring
 1. `useStationStore` Integration
-2. `useWizardStore` für Selection-State
-3. `useAppStore` für Custom Addresses
+2. `useAppStore` für Selection-State und Custom Addresses
 4. Tests schreiben
 
 ### Schritt 2: Step3 Refactoring

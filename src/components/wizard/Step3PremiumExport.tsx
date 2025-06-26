@@ -5,7 +5,6 @@ import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 import InteractiveMap from '../map/InteractiveMap';
 import OfflineMapComponent from '../map/OfflineMapComponent';
-import { useWizardStore } from '@/store/useWizardStore';
 import { useAppStore, RouteResult } from '@/lib/store/app-store';
 import { useStationStore } from '@/store/useStationStore';
 import { routingService } from '@/lib/services/routing-service';
@@ -41,8 +40,10 @@ interface Tab {
 }
 
 const Step3PremiumExport: React.FC = () => {
-  const { selectedStations, selectedCustomAddresses } = useWizardStore();
-  const { wizard: { startAddress }, customAddresses } = useAppStore();
+  const {
+    wizard: { startAddress, selectedStations, selectedCustomAddresses },
+    customAddresses
+  } = useAppStore();
   const { stations } = useStationStore();
 
   const [routeResults, setRouteResults] = useState<RouteResult[] | null>(null);

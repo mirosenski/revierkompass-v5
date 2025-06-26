@@ -23,25 +23,29 @@ Die React-Anwendung "RevierKompass" hat ein komplexes Zustand-Management-System 
 
 ## 🏗️ Aktuelle Store-Architektur
 
-### Store 1: `useWizardStore` (`/src/store/useWizardStore.ts`)
+### Store 1: `useAppStore` (`/src/lib/store/app-store.ts`)
 
 ```typescript
-interface WizardStore {
-  currentStep: 1 | 2 | 3
-  startAddress: string
-  selectedPraesidiumId: string | null
-  selectedReviereIds: string[]
+interface WizardState {
+  currentStep: number
+  startAddress: Address | null
+  selectedCities: string[]
   selectedStations: string[]
   selectedCustomAddresses: string[]
+  routeResults: RouteResult[]
+}
 
-  setStep: (step: 1 | 2 | 3) => void
-  setStartAddress: (address: string) => void
-  selectPraesidium: (id: string) => void
-  toggleRevier: (id: string) => void
+interface AppState {
+  wizard: WizardState
+  setWizardStep: (step: number) => void
+  setStartAddress: (address: Address | null) => void
+  setSelectedCities: (cities: string[]) => void
   setSelectedStations: (stations: string[]) => void
   setSelectedCustomAddresses: (addresses: string[]) => void
+  setRouteResults: (results: RouteResult[]) => void
   resetWizard: () => void
   resetAll: () => void
+  // ...weitere Bereiche
 }
 ```
 
@@ -151,7 +155,7 @@ useEffect(() => {
 - **Lösung**: Zentrale Reset-Orchestrierung
 
 ### 3. **Persistierung-Konflikte**
-- **Problem**: Verschiedene localStorage-Keys (`wizard-store` vs `revierkompass-v2-storage`)
+- **Problem**: Verschiedene localStorage-Keys (nur `revierkompass-v2-storage`)
 - **Folge**: Inkonsistente Daten zwischen Sessions
 - **Lösung**: Einheitliche Persistierung-Strategie
 
@@ -306,7 +310,7 @@ useEffect(() => {
 Ein vollständig funktionierendes Reset-System, das:
 
 ### Funktionale Anforderungen
-- ✅ **Alle Store-Daten zurücksetzt** (useWizardStore, useAppStore, etc.)
+- ✅ **Alle Store-Daten zurücksetzt** (useAppStore)
 - ✅ **Alle lokalen Komponenten-States zurücksetzt** (useState, useReducer)
 - ✅ **Zuverlässig von jedem View aus funktioniert** (Wizard, Admin, Login)
 - ✅ **Konsistente Daten zwischen allen Stores gewährleistet**
