@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { useWizardStore } from '@/store/useWizardStore';
 
 // Core Interfaces
 export interface Coordinates {
@@ -180,6 +181,9 @@ export const useAppStore = create<AppState>()(
       resetAll: () => {
         // Reset Wizard State
         set({ wizard: initialWizardState });
+
+        // Reset Wizard Store persisted state
+        useWizardStore.getState().resetAll();
         
         // Reset Custom Addresses
         set({ customAddresses: [] });
