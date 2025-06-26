@@ -12,9 +12,12 @@ const AdminStationManagement: React.FC = () => {
     loadStations,
     createStation,
     deleteStation,
+    updateStation,
   } = useAdminStore()
 
   const [newStation, setNewStation] = useState<Partial<Station>>({})
+  const [editingStation, setEditingStation] = useState<Station | null>(null)
+  const [editFormData, setEditFormData] = useState<Partial<Station>>({})
 
   useEffect(() => {
     loadStations()
@@ -37,6 +40,38 @@ const AdminStationManagement: React.FC = () => {
     } catch (err) {
       console.error('Erstellung fehlgeschlagen:', err)
       toast.error('Fehler bei der Station-Erstellung')
+    }
+  }
+
+  const handleEdit = (station: Station) => {
+    setEditingStation(station)
+    setEditFormData({
+      name: station.name,
+      coordinates: station.coordinates,
+      type: station.type,
+    })
+  }
+
+  const handleUpdate = async () => {
+    if (!editingStation) return
+
+    try {
+      if (!editFormData.name || !editFormData.coordinates?.[0] || !editFormData.coordinates?.[1]) {
+        toast.error('Bitte füllen Sie alle erforderlichen Felder aus')
+        return
+      }
+
+      await updateStation(editingStation.id, {
+        ...editFormData,
+        coordinates: [editFormData.coordinates[0], editFormData.coordinates[1]],
+        type: editFormData.type || editingStation.type,
+      })
+
+      setEditingStation(null)
+      toast.success('Station aktualisiert')
+    } catch (error) {
+      console.error('Update fehlgeschlagen:', error)
+      toast.error('Fehler bei der Aktualisierung')
     }
   }
 
@@ -141,39 +176,113 @@ const AdminStationManagement: React.FC = () => {
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {stations.map((station) => (
-                <tr key={station.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-6 py-4 whitespace-nowrap">{station.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        station.type === 'praesidium'
-                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
-                          : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
-                      }`}
-                    >
-                      {station.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {station.coordinates[0].toFixed(4)}, {station.coordinates[1].toFixed(4)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="flex justify-end space-x-2">
-                      <button
-                        onClick={() => {/* Edit-Logik */}}
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900"
+                <React.Fragment key={station.id}>
+                  <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-6 py-4 whitespace-nowrap">{station.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          station.type === 'praesidium'
+                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
+                            : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+                        }`}
                       >
-                        <Edit2 className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => deleteStation(station.id)}
-                        className="text-red-600 dark:text-red-400 hover:text-red-900"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                        {station.type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {station.coordinates[0].toFixed(4)}, {station.coordinates[1].toFixed(4)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleEdit(station)}
+                          className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900"
+                        >
+                          <Edit2 className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => deleteStation(station.id)}
+                          className="text-red-600 dark:text-red-400 hover:text-red-900"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {editingStation && editingStation.id === station.id && (
+                    <tr className="bg-blue-50 dark:bg-blue-900/20">
+                      <td colSpan={4} className="p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <input
+                            type="text"
+                            placeholder="Name"
+                            value={editFormData.name || ''}
+                            onChange={(e) =>
+                              setEditFormData((prev) => ({ ...prev, name: e.target.value }))
+                            }
+                            className="p-2 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+                          />
+                          <div className="grid grid-cols-2 gap-2">
+                            <input
+                              type="number"
+                              placeholder="Lat"
+                              value={editFormData.coordinates?.[0] || ''}
+                              onChange={(e) =>
+                                setEditFormData((prev) => ({
+                                  ...prev,
+                                  coordinates: [Number(e.target.value), prev.coordinates?.[1] || 0],
+                                }))
+                              }
+                              className="p-2 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+                            />
+                            <input
+                              type="number"
+                              placeholder="Lng"
+                              value={editFormData.coordinates?.[1] || ''}
+                              onChange={(e) =>
+                                setEditFormData((prev) => ({
+                                  ...prev,
+                                  coordinates: [prev.coordinates?.[0] || 0, Number(e.target.value)],
+                                }))
+                              }
+                              className="p-2 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+                            />
+                          </div>
+                          <select
+                            value={editFormData.type || ''}
+                            onChange={(e) =>
+                              setEditFormData((prev) => ({
+                                ...prev,
+                                type: e.target.value as StationType,
+                              }))
+                            }
+                            className="p-2 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+                          >
+                            <option value="">Typ wählen</option>
+                            <option value="praesidium">Präsidium</option>
+                            <option value="revier">Revier</option>
+                          </select>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={handleUpdate}
+                              disabled={isLoading}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg disabled:opacity-50"
+                            >
+                              {isLoading ? 'Speichern...' : 'Speichern'}
+                            </button>
+                            <button
+                              onClick={() => setEditingStation(null)}
+                              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white p-2 rounded-lg"
+                            >
+                              Abbrechen
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>
