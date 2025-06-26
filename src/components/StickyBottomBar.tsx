@@ -18,7 +18,7 @@ const StickyBottomBar: React.FC<StickyBottomBarProps> = ({ totalSelected, onCont
         disabled={disabled}
         className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-medium shadow-lg disabled:opacity-50 flex items-center space-x-2"
       >
-        <span>Weiter →</span>
+        <span>Weiter</span>
         <ArrowRight className="h-5 w-5" />
       </motion.button>
     </div>
