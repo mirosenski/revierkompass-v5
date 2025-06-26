@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 import { useAppStore } from '@/lib/store/app-store';
 import { useAuthStore } from '@/lib/store/auth-store';
 import Header from '@/components/layout/Header';
@@ -8,7 +8,6 @@ import Footer from '@/components/layout/Footer';
 import WizardContainer from '@/components/wizard/WizardContainer';
 import LoginForm from '@/components/auth/LoginForm';
 import AdminDashboard from '@/components/admin/AdminDashboard';
-import { dispatchReset } from '@/lib/eventBus';
 
 function App() {
   const [currentView, setCurrentView] = useState<'wizard' | 'login' | 'admin'>('wizard');
@@ -40,18 +39,22 @@ function App() {
   // Zentrale Neustart-Funktion für Logo-Klick
   const handleRestart = () => {
     console.log('🔄 RevierKompass Neustart wird durchgeführt...');
-    
+
     // Alle Stores vollständig zurücksetzen
     resetAll();
-    
-    // Globales Reset-Event triggern (für lokale States in Komponenten)
-    dispatchReset();
-    
+
+    // Globales Reset-Event triggern
+    window.dispatchEvent(new CustomEvent('revierkompass:reset'));
+
     // Zum Wizard mit Schritt 1 navigieren
     setCurrentView('wizard');
     setWizardStep(1);
-    
-    console.log('✅ Neustart abgeschlossen - alle Daten zurückgesetzt');
+
+    // Kurze Verzögerung für bessere UX
+    setTimeout(() => {
+      console.log('✅ Neustart abgeschlossen - alle Daten zurückgesetzt');
+      toast.success('Anwendung erfolgreich zurückgesetzt');
+    }, 300);
   };
 
   const handleAdminLogin = () => {

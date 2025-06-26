@@ -95,7 +95,7 @@ const UltraModernStep2: React.FC = () => {
   });
 
   // Store-Hooks
-  const { stations, getStationsByType, getReviereByPraesidium, loadStations } = useStationStore();
+  const { stations, isLoading, getStationsByType, getReviereByPraesidium, loadStations } = useStationStore();
   const { 
     customAddresses, 
     addCustomAddress, 
@@ -128,7 +128,15 @@ const UltraModernStep2: React.FC = () => {
     };
   }, [loadStations]);
 
+  useEffect(() => {
+    if (stations.length === 0 && !isLoading) {
+      console.log('UltraModernStep2: No stations loaded, loading now...');
+      loadStations();
+    }
+  }, [stations.length, isLoading, loadStations]);
+
   const resetStates = useCallback(() => {
+    console.log('UltraModernStep2: Resetting local states');
     setSearchQuery('');
     setActiveView('grid');
     setActiveTab('stations');
@@ -137,7 +145,11 @@ const UltraModernStep2: React.FC = () => {
     setShowQuickPreview(false);
     setLastSelectedId(null);
     setFormData({ name: '', street: '', zipCode: '', city: '' });
-  }, []);
+
+    // Reset auch die Store-Selektionen
+    setSelectedStations([]);
+    setSelectedCustomAddresses([]);
+  }, [setSelectedStations, setSelectedCustomAddresses]);
 
   // Memoized data
   const praesidien = useMemo(() => getStationsByType('praesidium'), [getStationsByType]);
