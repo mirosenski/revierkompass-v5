@@ -8,10 +8,11 @@ interface HeaderProps {
   onAdminLogin: () => void;
   onBackToWizard: () => void;
   onGoToAdmin?: () => void;
+  onRestart: () => void;
   currentView: 'wizard' | 'login' | 'admin';
 }
 
-const Header: React.FC<HeaderProps> = ({ onAdminLogin, onBackToWizard, onGoToAdmin, currentView }) => {
+const Header: React.FC<HeaderProps> = ({ onAdminLogin, onBackToWizard, onGoToAdmin, onRestart, currentView }) => {
   const { isDarkMode, toggleTheme } = useAppStore();
   const { isAuthenticated, isAdmin, logout, user } = useAuthStore();
 
@@ -33,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ onAdminLogin, onBackToWizard, onGoToAdm
           <motion.div 
             whileHover={{ scale: 1.02 }}
             className="flex items-center space-x-4 cursor-pointer"
-            onClick={onBackToWizard}
+            onClick={onRestart}
           >
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl blur-lg opacity-30"></div>
