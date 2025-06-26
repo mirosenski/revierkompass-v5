@@ -6,6 +6,10 @@ import { createLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router();
 
+const selectedPraesidien = new Set<string>();
+const autoSelectedReviere = new Set<string>();
+const manuallySelectedReviere = new Set<string>();
+
 // GET /api/stations - Public endpoint
 router.get('/', async (req, res) => {
   try {
@@ -180,8 +184,8 @@ router.delete('/:id',
 );
 
 // POST /api/stations/bulk-import - Admin only
-router.post('/bulk-import', 
-  authenticateToken, 
+router.post('/bulk-import',
+  authenticateToken,
   requireAdmin,
   logAction('bulk-import', 'station'),
   async (req, res) => {
@@ -229,6 +233,87 @@ router.post('/bulk-import',
     }
   }
 );
+
+// GET /api/stations/hierarchical - Public
+router.get('/hierarchical', async (req, res) => {
+  try {
+    const praesidien = await prisma.policeStation.findMany({
+      where: { type: 'präsidium', isActive: true },
+      include: { reviere: { where: { isActive: true } } }
+    });
+    res.json(praesidien);
+  } catch (error) {
+    console.error('Hierarchical fetch error:', error);
+    res.status(500).json({ error: 'Fehler beim Laden der Stationen' });
+  }
+});
+
+// GET /api/stations/praesidien - Public
+router.get('/praesidien', async (_req, res) => {
+  try {
+    const praesidien = await prisma.policeStation.findMany({
+      where: { type: 'präsidium', isActive: true }
+    });
+    res.json(praesidien);
+  } catch (error) {
+    console.error('Get praesidien error:', error);
+    res.status(500).json({ error: 'Fehler beim Laden der Präsidien' });
+  }
+});
+
+// GET /api/stations/praesidien/:id/revier - Public
+router.get('/praesidien/:id/revier', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reviere = await prisma.policeStation.findMany({
+      where: { praesidiumId: id, type: 'revier', isActive: true }
+    });
+    res.json(reviere);
+  } catch (error) {
+    console.error('Get revier error:', error);
+    res.status(500).json({ error: 'Fehler beim Laden der Reviere' });
+  }
+});
+
+// POST /api/stations/selection - Selection logic
+router.post('/selection', async (req, res) => {
+  const { action, praesidiumId, revierId } = req.body;
+
+  try {
+    if (action === 'select_praesidium' && praesidiumId) {
+      selectedPraesidien.add(praesidiumId);
+      const revier = await prisma.policeStation.findMany({
+        where: { praesidiumId, type: 'revier', isActive: true }
+      });
+      revier.forEach(r => autoSelectedReviere.add(r.id));
+    } else if (action === 'deselect_praesidium' && praesidiumId) {
+      selectedPraesidien.delete(praesidiumId);
+      const revier = await prisma.policeStation.findMany({
+        where: { praesidiumId, type: 'revier', isActive: true }
+      });
+      revier.forEach(r => autoSelectedReviere.delete(r.id));
+    } else if (action === 'select_revier' && revierId) {
+      manuallySelectedReviere.add(revierId);
+      autoSelectedReviere.delete(revierId);
+    } else if (action === 'deselect_revier' && revierId) {
+      manuallySelectedReviere.delete(revierId);
+      autoSelectedReviere.delete(revierId);
+    }
+
+    res.json({
+      selectedPraesidien: Array.from(selectedPraesidien),
+      selectedReviere: Array.from(new Set([
+        ...autoSelectedReviere,
+        ...manuallySelectedReviere,
+      ])),
+      autoSelectedReviere: Array.from(autoSelectedReviere),
+      manuallySelectedReviere: Array.from(manuallySelectedReviere),
+    });
+  } catch (error) {
+    console.error('Selection error:', error);
+    res.status(500).json({ error: 'Fehler bei der Auswahlverarbeitung' });
+  }
+});
 
 // GET /api/stations/stats - Admin only
 router.get('/admin/stats', authenticateToken, requireAdmin, async (req, res) => {

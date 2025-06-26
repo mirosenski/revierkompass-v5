@@ -74,6 +74,9 @@ npx prisma db push
 
 # Datenbank mit Demo-Daten befüllen
 npm run seed
+
+# Polizeistationen aus Excel importieren
+npm run import-stations:dev
 ```
 
 ### 5. Server starten

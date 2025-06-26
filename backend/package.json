@@ -10,7 +10,9 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx src/scripts/seed.ts"
+    "db:seed": "tsx src/scripts/seed.ts",
+    "import-stations:dev": "tsx src/scripts/import-stations-from-excel.ts",
+    "import-stations": "tsx src/scripts/import-stations-from-excel.ts"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -21,7 +23,8 @@
     "express-rate-limit": "^7.1.5",
     "zod": "^3.22.4",
     "@prisma/client": "^5.7.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
