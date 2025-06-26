@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Response } from 'express';
 import fs from 'fs/promises';
 import path from 'path';
+import { getProfileDisplayName } from '../../../shared/offline-map/profiles';
 
 interface RoutingProfile {
   mode: 'auto' | 'bicycle' | 'pedestrian' | 'bus' | 'emergency';
@@ -265,7 +266,7 @@ export class OfflineMapService {
         return {
           ...route,
           profile,
-          name: this.getProfileDisplayName(profile)
+          name: getProfileDisplayName(profile)
         };
       })
     );
@@ -483,16 +484,6 @@ export class OfflineMapService {
     return coordinates.map(coord => `${coord[1]},${coord[0]}`).join(';');
   }
 
-  private getProfileDisplayName(profile: string): string {
-    const names: Record<string, string> = {
-      emergency_fast: 'Einsatzfahrt (Schnellste)',
-      police_patrol: 'Polizei-Streife (Standard)',
-      pedestrian_safe: 'Fußweg (Sicherste)',
-      bicycle_patrol: 'Fahrrad-Streife',
-      public_transport: 'ÖPNV'
-    };
-    return names[profile] || profile;
-  }
 }
 
 export const offlineMapService = new OfflineMapService();
