@@ -1,3 +1,4 @@
+// UltraModernStep2.tsx (Komplett überarbeitet)
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -167,7 +168,7 @@ const UltraModernStep2: React.FC = () => {
     
     console.log('✅ Weiterleitung zu Step 3');
     toast.success(`${totalSelected} Ziele ausgewählt`);
-    setWizardStep(3);
+    setWizardStep(3); // Korrigiert von setStep zu setWizardStep
   };
 
   // Keyboard shortcuts
@@ -334,7 +335,10 @@ const UltraModernStep2: React.FC = () => {
                       >
                         {/* Präsidium Header - Klick auf Chevron öffnet Dropdown, Klick auf Karte wählt alle */}
                         <div className="flex justify-between items-start mb-4">
-                          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => togglePraesidiumWithReviere(praesidium.id)}>
+                          <div 
+                            className="flex items-center space-x-3 cursor-pointer" 
+                            onClick={() => togglePraesidiumWithReviere(praesidium.id)}
+                          >
                             <Building className="h-6 w-6 text-blue-600" />
                             <div>
                               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -352,10 +356,11 @@ const UltraModernStep2: React.FC = () => {
                                 : 'text-gray-300 dark:text-gray-600'
                             }`} />
                             <button
-                              type="button"
-                              aria-label={expandedPraesidien.has(praesidium.id) ? 'Reviere ausblenden' : 'Reviere anzeigen'}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                togglePraesidiumExpansion(praesidium.id);
+                              }}
                               className="p-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
-                              onClick={e => { e.stopPropagation(); togglePraesidiumExpansion(praesidium.id); }}
                             >
                               <ChevronDown 
                                 className={`h-5 w-5 text-gray-400 transition-transform ${
@@ -365,9 +370,11 @@ const UltraModernStep2: React.FC = () => {
                             </button>
                           </div>
                         </div>
+                        
                         <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                           {praesidium.reviere.length} Reviere verfügbar
                         </div>
+                        
                         {/* Reviere-Liste (expandierbar) */}
                         <AnimatePresence>
                           {expandedPraesidien.has(praesidium.id) && (
@@ -556,22 +563,11 @@ const UltraModernStep2: React.FC = () => {
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <CheckCircle2 className={`h-6 w-6 transition-colors ${
-                                selectedCustomAddresses.includes(address.id) 
-                                  ? 'text-green-500' 
-                                  : 'text-gray-300 dark:text-gray-600'
-                              }`} />
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteAddress(address.id);
-                                }}
-                                className="text-red-500 hover:text-red-700 transition-colors"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
+                            <CheckCircle2 className={`h-6 w-6 transition-colors ${
+                              selectedCustomAddresses.includes(address.id) 
+                                ? 'text-green-500' 
+                                : 'text-gray-300 dark:text-gray-600'
+                            }`} />
                           </div>
                         </motion.div>
                       ))
@@ -583,15 +579,20 @@ const UltraModernStep2: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Weiter-Button immer unten sichtbar */}
-      <div className="flex justify-end mt-8">
-        <button
-          onClick={handleContinue}
-          disabled={selectedStations.length + selectedCustomAddresses.length === 0}
-          className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-full font-medium shadow-lg transition-all disabled:cursor-not-allowed text-lg"
-        >
-          Weiter →
-        </button>
+      {/* Sticky Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200 dark:border-gray-700 z-40 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-end">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleContinue}
+            disabled={selectedStations.length + selectedCustomAddresses.length === 0}
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-medium shadow-lg disabled:opacity-50 flex items-center space-x-2"
+          >
+            <span>Weiter →</span>
+            <ArrowRight className="h-5 w-5" />
+          </motion.button>
+        </div>
       </div>
 
       {/* Floating Action Panel */}
@@ -787,4 +788,4 @@ const CommandItem: React.FC<CommandItemProps> = ({ icon, label, onSelect }) => {
   );
 };
 
-export default UltraModernStep2; 
+export default UltraModernStep2;
