@@ -31,6 +31,8 @@ export const createStationSchema = z.object({
   email: z.string().email().optional(),
   openingHours: z.string().optional(),
   isEmergency: z.boolean().default(false),
+  responsibilityArea: z.string().optional(),
+  praesidiumId: z.string().uuid().optional(),
 });
 
 export const updateStationSchema = createStationSchema.partial();

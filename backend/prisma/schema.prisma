@@ -39,11 +39,15 @@ model PoliceStation {
   email       String?
   openingHours String?
   isEmergency Boolean  @default(false)
+  responsibilityArea String?
+  praesidiumId String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
   // Relations
+  praesidium  PoliceStation? @relation("PraesidiumRevier", fields: [praesidiumId], references: [id])
+  reviere     PoliceStation[] @relation("PraesidiumRevier")
   auditLogs   AuditLog[]
   
   @@map("police_stations")
