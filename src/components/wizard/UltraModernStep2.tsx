@@ -108,25 +108,29 @@ const UltraModernStep2: React.FC = () => {
   
   // Initialize and cleanup
   useEffect(() => {
-    const loadData = async () => {
+    const initializeStep2 = async () => {
       try {
+        console.log('UltraModernStep2: Initializing Step 2...');
         await loadStations();
+        console.log('UltraModernStep2: Step 2 initialized successfully');
       } catch (error) {
-        console.error('Failed to load stations:', error);
+        console.error('UltraModernStep2: Failed to initialize Step 2:', error);
         toast.error('Fehler beim Laden der Stationen');
       }
     };
 
-    loadData();
+    initializeStep2();
     resetStates();
+    // Optional: State reset on direct navigation
+    setSelectedStations([]);
 
     const handleGlobalReset = () => resetStates();
     window.addEventListener('revierkompass:reset', handleGlobalReset);
-    
+
     return () => {
       window.removeEventListener('revierkompass:reset', handleGlobalReset);
     };
-  }, [loadStations]);
+  }, [loadStations, setSelectedStations]);
 
   useEffect(() => {
     if (stations.length === 0 && !isLoading) {

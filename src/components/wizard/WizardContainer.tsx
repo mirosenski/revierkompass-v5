@@ -10,6 +10,15 @@ import Step3PremiumExport from './Step3PremiumExport';
 const WizardContainer: React.FC = () => {
   const { wizard, setWizardStep } = useAppStore();
 
+  // Debug logs for state tracking
+  useEffect(() => {
+    console.log('WizardState aktualisiert:', {
+      currentStep: wizard.currentStep,
+      startAddress: wizard.startAddress?.fullAddress?.substring(0, 10) + '...',
+      selectedStations: wizard.selectedStations.length
+    });
+  }, [wizard]);
+
   // Auto-load stations on mount
   useEffect(() => {
     const loadStations = async () => {
@@ -51,26 +60,16 @@ const WizardContainer: React.FC = () => {
   ];
 
   const handleStepClick = (stepNumber: number) => {
-    if (stepNumber === 1) {
-      setWizardStep(1);
-      return;
-    }
+    console.log(`Navigation zu Step ${stepNumber} angefordert`);
 
-    if (stepNumber === 2) {
-      if (wizard.startAddress) {
-        setWizardStep(2);
-      } else {
-        toast.error('Bitte geben Sie zuerst eine Startadresse ein');
-      }
-      return;
-    }
+    setWizardStep(stepNumber);
 
-    if (stepNumber === 3) {
-      if (wizard.selectedStations.length > 0 || wizard.selectedCustomAddresses.length > 0) {
-        setWizardStep(3);
-      } else {
-        toast.error('Bitte wählen Sie zuerst mindestens ein Ziel aus');
-      }
+    if (
+      stepNumber === 3 &&
+      wizard.selectedStations.length === 0 &&
+      wizard.selectedCustomAddresses.length === 0
+    ) {
+      toast.error('Bitte wählen Sie mindestens ein Ziel aus');
     }
   };
 

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, Home, Settings, LogIn, ArrowLeft, MoreHorizontal } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
 import { useAuthStore } from '@/lib/store/auth-store';
+import toast from 'react-hot-toast';
 
 interface BreadcrumbsProps {
   currentView: 'wizard' | 'login' | 'admin';
@@ -27,8 +28,6 @@ const EnhancedBreadcrumbs: React.FC<BreadcrumbsProps> = ({ currentView, onNaviga
     const items: BreadcrumbItem[] = [];
 
     if (currentView === 'wizard') {
-      const canGoStep2 = !!wizard.startAddress;
-      const canGoStep3 = wizard.selectedStations.length > 0 || wizard.selectedCustomAddresses.length > 0;
 
       items.push({
         label: 'Adresse',
@@ -43,7 +42,7 @@ const EnhancedBreadcrumbs: React.FC<BreadcrumbsProps> = ({ currentView, onNaviga
         label: 'Ziele',
         icon: undefined,
         active: wizard.currentStep === 2,
-        clickable: canGoStep2 && wizard.currentStep !== 2,
+        clickable: wizard.currentStep !== 2,
         view: 'wizard',
         step: 2
       });
@@ -52,7 +51,7 @@ const EnhancedBreadcrumbs: React.FC<BreadcrumbsProps> = ({ currentView, onNaviga
         label: 'Export',
         icon: undefined,
         active: wizard.currentStep === 3,
-        clickable: canGoStep3 && wizard.currentStep !== 3,
+        clickable: wizard.currentStep !== 3,
         view: 'wizard',
         step: 3
       });
@@ -94,12 +93,20 @@ const EnhancedBreadcrumbs: React.FC<BreadcrumbsProps> = ({ currentView, onNaviga
   };
 
   const handleBreadcrumbClick = (item: BreadcrumbItem) => {
-    if (!item.clickable || !onNavigate) return;
-    
-    if (item.view && item.step !== undefined) {
+    if (!item.clickable) return;
+
+    if (item.view && item.step !== undefined && onNavigate) {
       onNavigate(item.view, item.step);
-    } else if (item.view) {
+    } else if (item.view && onNavigate) {
       onNavigate(item.view);
+    }
+
+    if (
+      item.step === 3 &&
+      wizard.selectedStations.length === 0 &&
+      wizard.selectedCustomAddresses.length === 0
+    ) {
+      toast.error('Bitte wählen Sie mindestens ein Ziel aus');
     }
   };
 

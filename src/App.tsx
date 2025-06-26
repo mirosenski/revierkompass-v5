@@ -11,7 +11,7 @@ import AdminDashboard from '@/components/admin/AdminDashboard';
 
 function App() {
   const [currentView, setCurrentView] = useState<'wizard' | 'login' | 'admin'>('wizard');
-  const { isDarkMode, setWizardStep, resetAll } = useAppStore();
+  const { wizard, isDarkMode, setWizardStep, resetAll } = useAppStore();
   const { isAuthenticated, isAdmin } = useAuthStore();
 
   // Beim Start der Anwendung immer zum Wizard mit Schritt 1 (Adressen-Startseite) navigieren
@@ -28,6 +28,27 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  // Sync wizard step with URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const stepFromUrl = urlParams.get('step');
+
+    if (stepFromUrl && currentView === 'wizard') {
+      const stepNumber = parseInt(stepFromUrl);
+      if (stepNumber >= 1 && stepNumber <= 3 && stepNumber !== wizard.currentStep) {
+        console.log(`URL-Step ${stepNumber} → State-Step ${wizard.currentStep}`);
+        setWizardStep(stepNumber);
+      }
+    }
+  }, [currentView, wizard.currentStep, setWizardStep]);
+
+  useEffect(() => {
+    if (currentView === 'wizard') {
+      const query = new URLSearchParams({ step: String(wizard.currentStep) });
+      window.history.replaceState(null, '', `?${query.toString()}`);
+    }
+  }, [wizard.currentStep, currentView]);
 
   // Automatisch zum Admin-Dashboard wechseln wenn eingeloggt
   useEffect(() => {
