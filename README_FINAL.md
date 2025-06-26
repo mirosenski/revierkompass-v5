@@ -337,6 +337,22 @@ docker-compose logs -f
 - Sicherheit durch Rate-Limiting und Validierung
 - Wartbarkeit durch modulare Architektur
 
+## 🔄 Event Bus nutzen
+
+Für das Zurücksetzen lokaler Zustände wird ein einfacher Event Bus verwendet. Die Funktionen befinden sich in `src/lib/eventBus.ts`.
+
+```ts
+import { dispatchReset, onReset } from '@/lib/eventBus';
+
+// Reset auslösen
+dispatchReset();
+
+// In Komponenten auf das Event reagieren
+useEffect(() => onReset(() => {
+  // lokale States zurücksetzen
+}), []);
+```
+
 ---
 
 ## 🎉 Erfolgreich implementiert!

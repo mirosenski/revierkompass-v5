@@ -9,6 +9,7 @@ import { useStationStore } from '@/store/useStationStore';
 import { useWizardStore } from '@/store/useWizardStore';
 import { useAppStore } from '@/lib/store/app-store';
 import toast from 'react-hot-toast';
+import { onReset } from '@/lib/eventBus';
 
 // TypeScript-Typen
 interface Station {
@@ -123,14 +124,11 @@ const UltraModernStep2: React.FC = () => {
     // Reset beim ersten Laden
     resetOnStart();
     
-    // Globaler Reset-Event-Listener
-    const handleGlobalReset = () => {
+    // Registrierung für globalen Reset
+    const unsubscribe = onReset(() => {
       console.log('UltraModernStep2: Global reset event received');
       resetOnStart();
-    };
-    
-    // Event-Listener für globalen Reset
-    window.addEventListener('revierkompass:reset', handleGlobalReset);
+    });
     
     // Optional: Reset bei Seitenneuladeung (wenn gewünscht)
     const handleBeforeUnload = () => {
@@ -139,10 +137,10 @@ const UltraModernStep2: React.FC = () => {
     };
     
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('revierkompass:reset', handleGlobalReset);
+      unsubscribe();
     };
   }, [loadStations]);
   

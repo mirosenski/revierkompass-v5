@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Search, Navigation, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
 import toast from 'react-hot-toast';
+import { onReset } from '@/lib/eventBus';
 
 const Step1AddressInput: React.FC = () => {
   const [address, setAddress] = useState('');
   const [isGeocoding, setIsGeocoding] = useState(false);
   const { setStartAddress, setWizardStep, wizard } = useAppStore();
+
+  useEffect(() => onReset(() => setAddress('')), []);
 
   // Demo addresses for quick testing
   const demoAddresses = [
