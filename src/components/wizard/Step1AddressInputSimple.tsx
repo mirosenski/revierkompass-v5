@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
 import { toast } from 'react-hot-toast';
+import { onReset } from '@/lib/eventBus';
 
 const Step1AddressInputSimple: React.FC = () => {
   const [address, setAddress] = useState('');
   const { setStartAddress, setWizardStep, wizard } = useAppStore();
+
+  useEffect(() => onReset(() => setAddress('')), []);
 
   // Demo addresses for quick testing
   const demoAddresses = [
@@ -168,3 +171,4 @@ const Step1AddressInputSimple: React.FC = () => {
 };
 
 export default Step1AddressInputSimple;
+

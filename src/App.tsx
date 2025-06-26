@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import WizardContainer from '@/components/wizard/WizardContainer';
 import LoginForm from '@/components/auth/LoginForm';
 import AdminDashboard from '@/components/admin/AdminDashboard';
+import { dispatchReset } from '@/lib/eventBus';
 
 function App() {
   const [currentView, setCurrentView] = useState<'wizard' | 'login' | 'admin'>('wizard');
@@ -44,7 +45,7 @@ function App() {
     resetAll();
     
     // Globales Reset-Event triggern (für lokale States in Komponenten)
-    window.dispatchEvent(new CustomEvent('revierkompass:reset'));
+    dispatchReset();
     
     // Zum Wizard mit Schritt 1 navigieren
     setCurrentView('wizard');

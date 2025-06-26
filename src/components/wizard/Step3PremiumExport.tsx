@@ -12,6 +12,7 @@ import { routingService } from '@/lib/services/routing-service';
 import NoSelectionWarning from './NoSelectionWarning';
 import { Station as StationType } from '@/types/station.types';
 import { Station as AppStoreStation } from '@/lib/store/app-store';
+import { onReset } from '@/lib/eventBus';
 
 // Hilfsfunktion zur Konvertierung zwischen Station-Typen
 const convertStationType = (station: StationType): AppStoreStation => {
@@ -48,6 +49,17 @@ const Step3PremiumExport: React.FC = () => {
   const [isCalculating, setIsCalculating] = useState(false);
   const [exportFormat, setExportFormat] = useState<'excel' | 'pdf' | 'csv'>('excel');
   const [activeTab, setActiveTab] = useState('summary');
+
+  useEffect(
+    () =>
+      onReset(() => {
+        setRouteResults(null);
+        setIsCalculating(false);
+        setExportFormat('excel');
+        setActiveTab('summary');
+      }),
+    []
+  );
 
   useEffect(() => {
     const calculateRoutes = async () => {
