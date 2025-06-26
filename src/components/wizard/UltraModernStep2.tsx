@@ -1,15 +1,63 @@
 // UltraModernStep2.tsx (Komplett überarbeitet)
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building, MapPin, ChevronDown, Search,
-  LayoutGrid, LayoutList, Plus, Mic, Command, CheckCircle2, Trash2, Users, ArrowRight
+  LayoutGrid, LayoutList, Plus, Mic, Command, CheckCircle2, Trash2, Users, ArrowRight,
+  X, Volume2, VolumeX, Settings, Filter, Star, Clock, Map
 } from 'lucide-react';
 import { useStationStore } from '@/store/useStationStore';
 import { useWizardStore } from '@/store/useWizardStore';
 import { useAppStore } from '@/lib/store/app-store';
 import ModernNavigation from '../ModernNavigation';
 import toast from 'react-hot-toast';
+
+// TypeScript-Typen für Web Speech API
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
 
 const UltraModernStep2: React.FC = () => {
   // States
@@ -26,6 +74,12 @@ const UltraModernStep2: React.FC = () => {
     zipCode: '',
     city: ''
   });
+
+  // Sprachsteuerung States
+  const [isListening, setIsListening] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [showVoiceFeedback, setShowVoiceFeedback] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   // Store-Hooks
   const { stations, getStationsByType, getReviereByPraesidium, loadStations } = useStationStore();
@@ -46,33 +100,72 @@ const UltraModernStep2: React.FC = () => {
     isExpanded: expandedPraesidien.has(praesidium.id)
   }));
 
-  // Debug: Log wenn Stationen geladen sind
+  // Sprachsteuerung initialisieren
   useEffect(() => {
-    console.log('📊 Stationen geladen:', stations.length);
-    console.log('📊 Präsidien:', praesidien.length);
-    console.log('📊 Ausgewählte Stationen:', selectedStations.length);
-    console.log('📊 Ausgewählte Custom Addresses:', selectedCustomAddresses.length);
-  }, [stations, praesidien, selectedStations, selectedCustomAddresses]);
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'de-DE';
 
-  // Toggle für Präsidium mit allen Revieren
+      recognitionRef.current.onstart = () => {
+        setIsListening(true);
+        setShowVoiceFeedback(true);
+        toast.success('Spracherkennung aktiviert');
+      };
+
+      recognitionRef.current.onresult = (event: any) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        setVoiceTranscript(finalTranscript || interimTranscript);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+        if (voiceTranscript) {
+          handleVoiceCommand(voiceTranscript);
+        }
+        setTimeout(() => setShowVoiceFeedback(false), 2000);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Spracherkennung Fehler:', event.error);
+        setIsListening(false);
+        setShowVoiceFeedback(false);
+        toast.error('Spracherkennung fehlgeschlagen');
+      };
+    }
+  }, []);
+
+  // Toggle Präsidium mit allen Revieren
   const togglePraesidiumWithReviere = (praesidiumId: string) => {
     const praesidium = praesidiumWithReviere.find(p => p.id === praesidiumId);
     if (!praesidium) return;
 
-    const reviereIds = praesidium.reviere.map(r => r.id);
-    const allIds = [praesidiumId, ...reviereIds];
-    
-    // Prüfen ob bereits alle ausgewählt sind
-    const allSelected = allIds.every(id => selectedStations.includes(id));
-    
-    if (allSelected) {
-      setSelectedStations(selectedStations.filter(id => !allIds.includes(id)));
+    const allStationIds = [praesidium.id, ...praesidium.reviere.map(r => r.id)];
+    const isSelected = selectedStations.includes(praesidiumId);
+
+    if (isSelected) {
+      // Abwählen: Präsidium und alle Reviere entfernen
+      setSelectedStations(selectedStations.filter(id => !allStationIds.includes(id)));
     } else {
-      setSelectedStations([...selectedStations.filter(id => !allIds.includes(id)), ...allIds]);
+      // Auswählen: Präsidium und alle Reviere hinzufügen
+      setSelectedStations([...new Set([...selectedStations, ...allStationIds])]);
     }
   };
 
-  // Einzelne Station umschalten
+  // Toggle einzelne Station
   const handleStationToggle = (stationId: string) => {
     if (selectedStations.includes(stationId)) {
       setSelectedStations(selectedStations.filter(id => id !== stationId));
@@ -81,7 +174,7 @@ const UltraModernStep2: React.FC = () => {
     }
   };
 
-  // Toggle Dropdown für Präsidium
+  // Toggle Präsidium Expansion
   const togglePraesidiumExpansion = (praesidiumId: string) => {
     const newExpanded = new Set(expandedPraesidien);
     if (newExpanded.has(praesidiumId)) {
@@ -128,13 +221,90 @@ const UltraModernStep2: React.FC = () => {
     toast.success('Adresse gelöscht');
   };
 
-  // Voice Commands
+  // Erweiterte Sprachsteuerung
   const handleVoiceCommand = (command: string) => {
     console.log("Voice command:", command);
+    const lowerCommand = command.toLowerCase();
+    
+    // Suchbefehle
+    if (lowerCommand.includes('suche') || lowerCommand.includes('finde')) {
+      const searchTerm = command.replace(/suche|finde/gi, '').trim();
+      setSearchQuery(searchTerm);
+      toast.success(`Suche nach: ${searchTerm}`);
+      return;
+    }
+
+    // Auswahlbefehle
+    if (lowerCommand.includes('alle') && lowerCommand.includes('stuttgart')) {
+      handleCommand('selectAllStuttgart');
+      return;
+    }
+
+    if (lowerCommand.includes('alle') && lowerCommand.includes('auswählen')) {
+      const allIds = praesidiumWithReviere.flatMap(p => [
+        p.id, 
+        ...p.reviere.map(r => r.id)
+      ]);
+      setSelectedStations([...new Set([...selectedStations, ...allIds])]);
+      toast.success('Alle Stationen ausgewählt');
+      return;
+    }
+
+    if (lowerCommand.includes('nichts') || lowerCommand.includes('keine')) {
+      setSelectedStations([]);
+      setSelectedCustomAddresses([]);
+      toast.success('Alle Auswahlen zurückgesetzt');
+      return;
+    }
+
+    // Präsidium-spezifische Befehle
+    for (const praesidium of praesidiumWithReviere) {
+      if (lowerCommand.includes(praesidium.city.toLowerCase()) || 
+          lowerCommand.includes(praesidium.name.toLowerCase().replace('polizeipräsidium ', ''))) {
+        togglePraesidiumWithReviere(praesidium.id);
+        toast.success(`${praesidium.name} ausgewählt`);
+        return;
+      }
+    }
+
+    // Tab-Wechsel
+    if (lowerCommand.includes('eigene') || lowerCommand.includes('adressen')) {
+      setActiveTab('custom');
+      toast.success('Tab zu eigenen Adressen gewechselt');
+      return;
+    }
+
+    if (lowerCommand.includes('stationen') || lowerCommand.includes('polizei')) {
+      setActiveTab('stations');
+      toast.success('Tab zu Polizeistationen gewechselt');
+      return;
+    }
+
+    // Weiter-Navigation
+    if (lowerCommand.includes('weiter') || lowerCommand.includes('fortfahren')) {
+      handleContinue();
+      return;
+    }
+
     toast.success(`Sprachbefehl erkannt: ${command}`);
   };
 
-  // Command Handler
+  // Sprachsteuerung starten/stoppen
+  const toggleVoiceRecognition = () => {
+    if (!recognitionRef.current) {
+      toast.error('Spracherkennung nicht verfügbar');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      setVoiceTranscript('');
+      recognitionRef.current.start();
+    }
+  };
+
+  // Erweiterte Befehle
   const handleCommand = (command: string) => {
     if (command.startsWith('selectPraesidium:')) {
       const praesidiumId = command.split(':')[1];
@@ -148,6 +318,28 @@ const UltraModernStep2: React.FC = () => {
         ...p.reviere.map(r => r.id)
       ]);
       setSelectedStations([...new Set([...selectedStations, ...allIds])]);
+      toast.success('Alle Stuttgarter Stationen ausgewählt');
+    } else if (command === 'selectAll') {
+      const allIds = praesidiumWithReviere.flatMap(p => [
+        p.id, 
+        ...p.reviere.map(r => r.id)
+      ]);
+      setSelectedStations([...new Set([...selectedStations, ...allIds])]);
+      toast.success('Alle Stationen ausgewählt');
+    } else if (command === 'clearSelection') {
+      setSelectedStations([]);
+      setSelectedCustomAddresses([]);
+      toast.success('Alle Auswahlen zurückgesetzt');
+    } else if (command === 'expandAll') {
+      const allIds = new Set(praesidiumWithReviere.map(p => p.id));
+      setExpandedPraesidien(allIds);
+      toast.success('Alle Präsidien ausgeklappt');
+    } else if (command === 'collapseAll') {
+      setExpandedPraesidien(new Set());
+      toast.success('Alle Präsidien eingeklappt');
+    } else if (command.startsWith('search:')) {
+      const searchTerm = command.split(':')[1];
+      setSearchQuery(searchTerm);
     }
     setShowCommandPalette(false);
   };
@@ -178,12 +370,15 @@ const UltraModernStep2: React.FC = () => {
       if (e.metaKey && e.key === 'k') {
         e.preventDefault();
         setShowCommandPalette(true);
+      } else if (e.metaKey && e.key === 'm') {
+        e.preventDefault();
+        toggleVoiceRecognition();
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isListening]);
 
   const tabs = [
     {
@@ -204,17 +399,40 @@ const UltraModernStep2: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Header mit Such- und Ansichts-Optionen */}
+      {/* Header mit erweiterter Such- und Sprachsteuerung */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <div className="relative flex-1 max-w-xl">
+        <div className="relative flex-1 max-w-3xl">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Suche nach Präsidien, Revieren oder Adressen..."
+            placeholder="Suche nach Präsidien, Revieren oder Adressen... (⌘+K für Befehle, ⌘+M für Sprachsteuerung)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 ring-blue-500 transition-all"
+            className="w-full pl-10 pr-20 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 ring-blue-500 transition-all"
           />
+          
+          {/* Kompakte Sprachsteuerung in Suchleiste */}
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+            <button
+              onClick={toggleVoiceRecognition}
+              className={`p-2 rounded-lg transition-all ${
+                isListening 
+                  ? 'bg-red-500 text-white animate-pulse' 
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+              title={isListening ? 'Spracherkennung stoppen' : 'Spracherkennung starten (⌘+M)'}
+            >
+              {isListening ? <VolumeX className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </button>
+            
+            <button
+              onClick={() => setShowCommandPalette(true)}
+              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+              title="Befehle öffnen (⌘+K)"
+            >
+              <Command className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         
         <div className="flex items-center space-x-3">
@@ -243,28 +461,42 @@ const UltraModernStep2: React.FC = () => {
               <LayoutList className="h-5 w-5" />
             </button>
           </div>
-          
-          {/* Voice Command Button */}
-          <button
-            onClick={() => handleVoiceCommand('test')}
-            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-            title="Sprachsteuerung"
-          >
-            <Mic className="h-5 w-5" />
-            <span className="hidden sm:inline">Sprachsteuerung</span>
-          </button>
-          
-          {/* Command Palette Button */}
-          <button
-            onClick={() => setShowCommandPalette(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            title="Befehle (⌘ + K)"
-          >
-            <Command className="h-5 w-5" />
-            <span className="hidden sm:inline">Befehle</span>
-          </button>
         </div>
       </div>
+
+      {/* Sprach-Feedback Overlay */}
+      <AnimatePresence>
+        {showVoiceFeedback && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 p-4 max-w-md"
+          >
+            <div className="flex items-center space-x-3">
+              <div className={`p-2 rounded-full ${isListening ? 'bg-red-100 dark:bg-red-900/20' : 'bg-green-100 dark:bg-green-900/20'}`}>
+                {isListening ? <Volume2 className="h-5 w-5 text-red-600" /> : <CheckCircle2 className="h-5 w-5 text-green-600" />}
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {isListening ? 'Spracherkennung aktiv...' : 'Sprachbefehl verarbeitet'}
+                </p>
+                {voiceTranscript && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    "{voiceTranscript}"
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setShowVoiceFeedback(false)}
+                className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="h-4 w-4 text-gray-400" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Tab Navigation */}
       <motion.div
@@ -715,32 +947,77 @@ const CommandDialog: React.FC<CommandDialogProps> = ({ isOpen, onClose, onComman
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-xl mx-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+        className="w-full max-w-3xl mx-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="border-b dark:border-gray-700 p-4">
-          <input
-            type="text"
-            placeholder="Suche Befehle..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-4 py-2 bg-transparent focus:outline-none text-gray-900 dark:text-white placeholder-gray-500"
-            autoFocus
-          />
+          <div className="flex items-center space-x-3">
+            <Command className="h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Suche Befehle oder sprechen Sie... (⌘+M für Sprachsteuerung)"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 px-4 py-2 bg-transparent focus:outline-none text-gray-900 dark:text-white placeholder-gray-500"
+              autoFocus
+            />
+          </div>
         </div>
         
         <div className="max-h-96 overflow-y-auto">
           <div className="p-2">
-            <div className="text-xs text-gray-500 px-2 py-1">Schnellaktionen</div>
+            {/* Schnellaktionen */}
+            <div className="text-xs text-gray-500 px-2 py-1 font-medium">🚀 Schnellaktionen</div>
             <div className="space-y-1">
+              <CommandItem 
+                icon={<Star className="h-4 w-4" />}
+                label="Alle Stationen auswählen"
+                onSelect={() => onCommand('selectAll')}
+              />
               <CommandItem 
                 icon={<MapPin className="h-4 w-4" />}
                 label="Alle in Stuttgart auswählen"
                 onSelect={() => onCommand('selectAllStuttgart')}
               />
+              <CommandItem 
+                icon={<X className="h-4 w-4" />}
+                label="Alle Auswahlen zurücksetzen"
+                onSelect={() => onCommand('clearSelection')}
+              />
             </div>
             
-            <div className="text-xs text-gray-500 px-2 py-1 mt-4">Präsidien</div>
+            {/* Ansicht & Navigation */}
+            <div className="text-xs text-gray-500 px-2 py-1 mt-4 font-medium">👁️ Ansicht & Navigation</div>
+            <div className="space-y-1">
+              <CommandItem 
+                icon={<ChevronDown className="h-4 w-4" />}
+                label="Alle Präsidien ausklappen"
+                onSelect={() => onCommand('expandAll')}
+              />
+              <CommandItem 
+                icon={<ChevronDown className="h-4 w-4 rotate-180" />}
+                label="Alle Präsidien einklappen"
+                onSelect={() => onCommand('collapseAll')}
+              />
+            </div>
+            
+            {/* Sprachsteuerung */}
+            <div className="text-xs text-gray-500 px-2 py-1 mt-4 font-medium">🎤 Sprachsteuerung</div>
+            <div className="space-y-1">
+              <CommandItem 
+                icon={<Mic className="h-4 w-4" />}
+                label="Sprachsteuerung aktivieren"
+                onSelect={() => {
+                  onClose();
+                  // Trigger voice recognition
+                  const event = new KeyboardEvent('keydown', { metaKey: true, key: 'm' });
+                  window.dispatchEvent(event);
+                }}
+              />
+            </div>
+            
+            {/* Präsidien */}
+            <div className="text-xs text-gray-500 px-2 py-1 mt-4 font-medium">🏢 Präsidien</div>
             <div className="space-y-1">
               {filteredCommands.map(cmd => (
                 <CommandItem
@@ -750,6 +1027,17 @@ const CommandDialog: React.FC<CommandDialogProps> = ({ isOpen, onClose, onComman
                   onSelect={() => onCommand(`selectPraesidium:${cmd.id}`)}
                 />
               ))}
+            </div>
+            
+            {/* Sprachbefehle Hilfe */}
+            <div className="text-xs text-gray-500 px-2 py-1 mt-4 font-medium">💡 Sprachbefehle</div>
+            <div className="text-xs text-gray-400 px-2 py-1 space-y-1">
+              <div>• "Suche [Begriff]" - Suchfunktion</div>
+              <div>• "Alle Stuttgart" - Stuttgarter Stationen</div>
+              <div>• "Alle auswählen" - Alle Stationen</div>
+              <div>• "Nichts auswählen" - Zurücksetzen</div>
+              <div>• "[Stadtname]" - Präsidium auswählen</div>
+              <div>• "Weiter" - Zum nächsten Schritt</div>
             </div>
           </div>
         </div>
@@ -769,11 +1057,13 @@ const CommandItem: React.FC<CommandItemProps> = ({ icon, label, onSelect }) => {
   return (
     <button
       onClick={onSelect}
-      className="flex items-center w-full px-4 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-white"
+      className="flex items-center w-full px-4 py-3 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-white group"
     >
-      {icon}
-      <span className="ml-2 flex-1 text-left">{label}</span>
-      <kbd className="text-xs text-gray-400">⌘{label.charAt(0).toUpperCase()}</kbd>
+      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
+        {icon}
+      </div>
+      <span className="ml-3 flex-1 text-left">{label}</span>
+      <kbd className="text-xs text-gray-400 bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">↵</kbd>
     </button>
   );
 };
