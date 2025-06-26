@@ -27,7 +27,7 @@ src/
   lib/
     store/
       praesidium-store.ts
-      wizard-store.ts
+      app-store.ts
     api/
       praesidium-api.ts
   pages/
@@ -76,10 +76,10 @@ graph TD
 ```mermaid
 graph LR
   API[API /api/praesidien] --> PraesidiumStore[PraesidiumStore]
-  PraesidiumStore --> WizardStore[WizardStore]
-  WizardStore --> Step2[Step2PraesidienReviere]
+  PraesidiumStore --> AppStore[AppStore]
+  AppStore --> Step2[Step2PraesidienReviere]
   Step2 --> MapView[MapView]
-  WizardStore --> Step3[Step3Export]
+  AppStore --> Step3[Step3Export]
 ```
 
 ### 2.3 Ablaufdiagramm Wizard-Interaktion
@@ -110,7 +110,7 @@ sequenceDiagram
 
 ### 3.2 Store/State
 - `src/lib/store/praesidium-store.ts` – Lädt und verwaltet Präsidien/Reviere
-- `src/lib/store/wizard-store.ts` – Wizard-spezifischer UI-State (z.B. ausgewählte Ziele)
+- `src/lib/store/app-store.ts` – Globaler UI-State inkl. Wizard-Daten
 
 ### 3.3 Routing
 - `src/pages/wizard.tsx` – Einstiegspunkt für den Wizard
@@ -167,5 +167,5 @@ sequenceDiagram
 # Hinweise zur Weiterentwicklung
 - Die Komponentenstruktur ist modular und kann leicht erweitert werden.
 - Die Datenstruktur ist so gewählt, dass neue Präsidien/Reviere einfach ergänzt werden können.
-- Die Trennung von UI-State (WizardStore) und Daten (PraesidiumStore) sorgt für Übersichtlichkeit und Skalierbarkeit.
+- Die Trennung von UI-State (AppStore) und Daten (PraesidiumStore) sorgt für Übersichtlichkeit und Skalierbarkeit.
 - Die Diagramme können mit Mermaid live in VS Code oder GitHub angezeigt werden. 

@@ -9,7 +9,6 @@ Diese Datei enthält alle notwendigen Refactoring-Aufgaben basierend auf der vol
 
 ### ✅ **Was bereits funktioniert:**
 - `useStationStore` - Vollständig implementiert mit `getStationsByType` und `getReviereByPraesidium`
-- `useWizardStore` - Vollständig implementiert mit Persistierung
 - `useAppStore` - Vollständig implementiert mit Custom Addresses Management
 - `useAdminStore` - Vollständig implementiert mit CRUD-Operationen
 - **Mock-Daten** - Vollständige Hierarchie mit Präsidien und Revieren (parentId-Beziehungen)
@@ -157,7 +156,6 @@ const togglePraesidium = (praesidiumId: string) => {
 ```typescript
 // ✅ Neu: Store-basiert
 const { customAddresses, addCustomAddress, deleteCustomAddress } = useAppStore();
-const { selectedCustomAddresses, setSelectedCustomAddresses } = useWizardStore();
 
 // Entferne lokalen State
 // const [customAddresses, setCustomAddresses] = useState<CustomAddress[]>([]);
@@ -202,19 +200,18 @@ const handleDeleteAddress = (addressId: string) => {
 
 ---
 
-### **Aufgabe 1.3: Step2 - Selection State zu WizardStore migrieren**
+### **Aufgabe 1.3: Step2 - Selection State zum AppStore migrieren**
 
 **Problem:** Lokaler State für Custom Selection
 
 **Lösung:**
 ```typescript
-// ✅ Neu: WizardStore für alle Selections
-const { 
-  selectedStations, 
+// ✅ Neu: AppStore für alle Selections
+const {
+  wizard: { selectedStations, selectedCustomAddresses },
   setSelectedStations,
-  selectedCustomAddresses,
-  setSelectedCustomAddresses 
-} = useWizardStore();
+  setSelectedCustomAddresses
+}
 
 // Entferne lokalen State
 // const [selectedCustom, setSelectedCustom] = useState<string[]>([]);
@@ -304,7 +301,6 @@ const calculateRoutes = async () => {
 **Lösung:**
 ```typescript
 // ✅ Neu: Optimale Store-Nutzung
-const { selectedStations, selectedCustomAddresses } = useWizardStore();
 const { startAddress, customAddresses } = useAppStore();
 const { stations } = useStationStore();
 
@@ -479,8 +475,7 @@ import { Station } from '@/types/station.types';
 **Lösung:**
 ```typescript
 // ✅ Neu: Optimierte Store-Interaktionen
-// useWizardStore.ts erweitern
-interface WizardStore {
+interface AppStore {
   // ... bestehende Properties
   
   // Neue Methoden für bessere Integration
