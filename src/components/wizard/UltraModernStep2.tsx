@@ -102,6 +102,38 @@ const UltraModernStep2: React.FC = () => {
   useEffect(() => {
     console.log('UltraModernStep2: Loading stations...');
     loadStations();
+    
+    // Reset aller States bei Neustart/Seitenneuladeung
+    const resetOnStart = () => {
+      console.log('UltraModernStep2: Resetting states on start...');
+      setSearchQuery('');
+      setActiveView('grid');
+      setActiveTab('stations');
+      setShowAddForm(false);
+      setExpandedPraesidien(new Set());
+      setShowQuickPreview(false);
+      setLastSelectedId(null);
+      setFormData({ name: '', street: '', zipCode: '', city: '' });
+      
+      // Optional: Auch die Auswahl zurücksetzen
+      // setSelectedStations([]);
+      // setSelectedCustomAddresses([]);
+    };
+    
+    // Reset beim ersten Laden
+    resetOnStart();
+    
+    // Optional: Reset bei Seitenneuladeung (wenn gewünscht)
+    const handleBeforeUnload = () => {
+      // Hier könnte man noch zusätzliche Cleanup-Logik hinzufügen
+      console.log('UltraModernStep2: Page unloading, cleanup...');
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [loadStations]);
   
   // PERFORMANCE: Memoized Berechnungen
@@ -244,6 +276,25 @@ const UltraModernStep2: React.FC = () => {
     }
     setWizardStep(3);
   }, [totalSelected, setWizardStep]);
+
+  // Reset-Funktion für Neustart
+  const handleReset = useCallback(() => {
+    console.log('UltraModernStep2: Manual reset triggered');
+    setSearchQuery('');
+    setActiveView('grid');
+    setActiveTab('stations');
+    setShowAddForm(false);
+    setExpandedPraesidien(new Set());
+    setShowQuickPreview(false);
+    setLastSelectedId(null);
+    setFormData({ name: '', street: '', zipCode: '', city: '' });
+    
+    // Optional: Auch die Auswahl zurücksetzen
+    // setSelectedStations([]);
+    // setSelectedCustomAddresses([]);
+    
+    toast.success('Neustart durchgeführt - alle Einstellungen zurückgesetzt');
+  }, []);
 
   // Debug-Log
   console.log('UltraModernStep2: Rendering with filteredPraesidien:', filteredPraesidien.length);
@@ -652,24 +703,37 @@ const UltraModernStep2: React.FC = () => {
                 </button>
               </div>
 
-              {/* Quick Preview Toggle */}
-              <button
-                onClick={() => setShowQuickPreview(!showQuickPreview)}
-                className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all ${
-                  showQuickPreview
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-                aria-pressed={showQuickPreview}
-                aria-label="Vorschau der ausgewählten Ziele"
-              >
-                <span>Vorschau</span>
-                {totalSelected > 0 && (
-                  <span className="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded-full">
-                    {totalSelected}
-                  </span>
-                )}
-              </button>
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-3">
+                {/* Neustart Button */}
+                <button
+                  onClick={handleReset}
+                  className="px-4 py-2 rounded-lg flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white transition-all"
+                  aria-label="Neustart - Alle Einstellungen zurücksetzen"
+                >
+                  <X className="h-4 w-4" />
+                  <span>Neustart</span>
+                </button>
+
+                {/* Quick Preview Toggle */}
+                <button
+                  onClick={() => setShowQuickPreview(!showQuickPreview)}
+                  className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all ${
+                    showQuickPreview
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                  aria-pressed={showQuickPreview}
+                  aria-label="Vorschau der ausgewählten Ziele"
+                >
+                  <span>Vorschau</span>
+                  {totalSelected > 0 && (
+                    <span className="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded-full">
+                      {totalSelected}
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
