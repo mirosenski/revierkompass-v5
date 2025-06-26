@@ -29,7 +29,6 @@ Nach dem Start öffne deinen Browser und gehe zu:
 ## Features der Startseite
 
 - 📍 **Adresse eingeben**: Startadresse für Routenberechnung
-- 🚀 **Demo-Adressen**: Schnelle Tests mit vordefinierten Adressen
 - 🎯 **Automatische Weiterleitung**: Nach Adresseingabe zu Schritt 2
 - 🌙 **Dark Mode**: Automatische Theme-Erkennung
 

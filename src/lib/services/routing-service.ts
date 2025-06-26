@@ -32,145 +32,146 @@ class RoutingService {
     allStations: Station[],
     customAddresses: CustomAddress[]
   ): Promise<RouteResult[]> {
-    const results: RouteResult[] = [];
-    
-    // Calculate routes to selected stations
+    const tasks: Promise<RouteResult | null>[] = [];
+
     for (const stationId of selectedStationIds) {
-      const station = allStations.find(s => s.id === stationId);
+      const station = allStations.find((s) => s.id === stationId);
       if (!station) continue;
 
-      try {
-        const route = await this.calculateSingleRoute(
-          startAddress.coordinates,
-          station.coordinates
-        );
-
-        if (route) {
-          results.push({
+      const task = this.calculateSingleRoute(
+        startAddress.coordinates,
+        station.coordinates
+      )
+        .then((route) => {
+          if (!route) return null;
+          return {
             id: `station-${station.id}`,
             destinationId: station.id,
             destinationName: station.name,
             destinationType: 'station',
             address: station.address,
-            distance: route.distance / 1000, // Convert to km
-            duration: Math.round(route.duration / 60), // Convert to minutes
-            estimatedFuel: (route.distance / 1000) * 0.095, // 9.5L/100km
-            estimatedCost: (route.distance / 1000) * 0.095 * 1.75, // 1.75€/L
+            distance: route.distance / 1000,
+            duration: Math.round(route.duration / 60),
+            estimatedFuel: (route.distance / 1000) * 0.095,
+            estimatedCost: (route.distance / 1000) * 0.095 * 1.75,
             routeType: 'Schnellste',
             coordinates: station.coordinates,
-            color: this.generateRouteColor(results.length),
+            provider: 'OSRM',
             route: {
               coordinates: route.coordinates,
               distance: route.distance,
-              duration: route.duration
+              duration: route.duration,
             },
-            provider: 'OSRM'
-          });
-        }
-      } catch (error) {
-        console.error(`Error calculating route to station ${station.name}:`, error);
-        
-        // Fallback to direct distance calculation
-        const directDistance = this.calculateDirectDistance(
-          startAddress.coordinates,
-          station.coordinates
-        );
-        
-        results.push({
-          id: `station-${station.id}`,
-          destinationId: station.id,
-          destinationName: station.name,
-          destinationType: 'station',
-          address: station.address,
-          distance: directDistance,
-          duration: Math.round(directDistance * 2), // Rough estimate: 2 minutes per km
-          estimatedFuel: directDistance * 0.095,
-          estimatedCost: directDistance * 0.095 * 1.75,
-          routeType: 'Kürzeste',
-          coordinates: station.coordinates,
-          color: this.generateRouteColor(results.length),
-          route: {
-            coordinates: [
-              [startAddress.coordinates.lng, startAddress.coordinates.lat],
-              [station.coordinates.lng, station.coordinates.lat]
-            ],
-            distance: directDistance * 1000,
-            duration: directDistance * 120
-          },
-          provider: 'Direct'
+            color: '',
+          } as RouteResult;
+        })
+        .catch((error) => {
+          console.error(`Error calculating route to station ${station.name}:`, error);
+          const directDistance = this.calculateDirectDistance(
+            startAddress.coordinates,
+            station.coordinates
+          );
+          return {
+            id: `station-${station.id}`,
+            destinationId: station.id,
+            destinationName: station.name,
+            destinationType: 'station',
+            address: station.address,
+            distance: directDistance,
+            duration: Math.round(directDistance * 2),
+            estimatedFuel: directDistance * 0.095,
+            estimatedCost: directDistance * 0.095 * 1.75,
+            routeType: 'Kürzeste',
+            coordinates: station.coordinates,
+            provider: 'Direct',
+            route: {
+              coordinates: [
+                [startAddress.coordinates.lng, startAddress.coordinates.lat],
+                [station.coordinates.lng, station.coordinates.lat],
+              ],
+              distance: directDistance * 1000,
+              duration: directDistance * 120,
+            },
+            color: '',
+          } as RouteResult;
         });
-      }
+      tasks.push(task);
     }
 
-    // Calculate routes to selected custom addresses
     for (const addressId of selectedCustomAddressIds) {
-      const customAddress = customAddresses.find(a => a.id === addressId);
+      const customAddress = customAddresses.find((a) => a.id === addressId);
       if (!customAddress || !customAddress.coordinates) continue;
 
-      try {
-        const route = await this.calculateSingleRoute(
-          startAddress.coordinates,
-          customAddress.coordinates
-        );
-
-        if (route) {
-          results.push({
+      const task = this.calculateSingleRoute(
+        startAddress.coordinates,
+        customAddress.coordinates
+      )
+        .then((route) => {
+          if (!route) return null;
+          return {
             id: `custom-${customAddress.id}`,
             destinationId: customAddress.id,
             destinationName: customAddress.name,
             destinationType: 'custom',
             address: customAddress.address,
-            distance: route.distance / 1000, // Convert to km
-            duration: Math.round(route.duration / 60), // Convert to minutes
+            distance: route.distance / 1000,
+            duration: Math.round(route.duration / 60),
             estimatedFuel: (route.distance / 1000) * 0.095,
             estimatedCost: (route.distance / 1000) * 0.095 * 1.75,
             routeType: 'Schnellste',
             coordinates: customAddress.coordinates,
-            color: this.generateRouteColor(results.length),
+            provider: 'OSRM',
             route: {
               coordinates: route.coordinates,
               distance: route.distance,
-              duration: route.duration
+              duration: route.duration,
             },
-            provider: 'OSRM'
-          });
-        }
-      } catch (error) {
-        console.error(`Error calculating route to custom address ${customAddress.name}:`, error);
-        
-        // Fallback to direct distance calculation
-        const directDistance = this.calculateDirectDistance(
-          startAddress.coordinates,
-          customAddress.coordinates
-        );
-        
-        results.push({
-          id: `custom-${customAddress.id}`,
-          destinationId: customAddress.id,
-          destinationName: customAddress.name,
-          destinationType: 'custom',
-          address: customAddress.address,
-          distance: directDistance,
-          duration: Math.round(directDistance * 2), // Rough estimate: 2 minutes per km
-          estimatedFuel: directDistance * 0.095,
-          estimatedCost: directDistance * 0.095 * 1.75,
-          routeType: 'Kürzeste',
-          coordinates: customAddress.coordinates,
-          color: this.generateRouteColor(results.length),
-          route: {
-            coordinates: [
-              [startAddress.coordinates.lng, startAddress.coordinates.lat],
-              [customAddress.coordinates.lng, customAddress.coordinates.lat]
-            ],
-            distance: directDistance * 1000,
-            duration: directDistance * 120
-          },
-          provider: 'Direct'
+            color: '',
+          } as RouteResult;
+        })
+        .catch((error) => {
+          console.error(
+            `Error calculating route to custom address ${customAddress.name}:`,
+            error
+          );
+          const directDistance = this.calculateDirectDistance(
+            startAddress.coordinates,
+            customAddress.coordinates
+          );
+          return {
+            id: `custom-${customAddress.id}`,
+            destinationId: customAddress.id,
+            destinationName: customAddress.name,
+            destinationType: 'custom',
+            address: customAddress.address,
+            distance: directDistance,
+            duration: Math.round(directDistance * 2),
+            estimatedFuel: directDistance * 0.095,
+            estimatedCost: directDistance * 0.095 * 1.75,
+            routeType: 'Kürzeste',
+            coordinates: customAddress.coordinates,
+            provider: 'Direct',
+            route: {
+              coordinates: [
+                [startAddress.coordinates.lng, startAddress.coordinates.lat],
+                [customAddress.coordinates.lng, customAddress.coordinates.lat],
+              ],
+              distance: directDistance * 1000,
+              duration: directDistance * 120,
+            },
+            color: '',
+          } as RouteResult;
         });
-      }
+      tasks.push(task);
     }
 
-    return results.sort((a, b) => a.distance - b.distance);
+    const results = (await Promise.all(tasks)).filter(
+      (r): r is RouteResult => r !== null
+    );
+
+    return results
+      .sort((a, b) => a.distance - b.distance)
+      .map((r, idx) => ({ ...r, color: this.generateRouteColor(idx) }));
   }
 
   // Calculate single route between two points
