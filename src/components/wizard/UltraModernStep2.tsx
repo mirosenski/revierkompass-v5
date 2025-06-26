@@ -100,32 +100,39 @@ const UltraModernStep2: React.FC = () => {
   const { customAddresses, addCustomAddress, deleteCustomAddress, setWizardStep } = useAppStore();
   
   useEffect(() => {
+    console.log('UltraModernStep2: Loading stations...');
     loadStations();
   }, [loadStations]);
   
   // PERFORMANCE: Memoized Berechnungen
-  const praesidien = useMemo(() => getStationsByType('praesidium'), [getStationsByType]);
+  const praesidien = useMemo(() => {
+    const result = getStationsByType('praesidium');
+    console.log('UltraModernStep2: Praesidien loaded:', result.length, result);
+    return result;
+  }, [getStationsByType]);
   
-  const praesidiumWithReviere: PraesidiumWithDetails[] = useMemo(() => 
-    praesidien.map(praesidium => ({
+  const praesidiumWithReviere: PraesidiumWithDetails[] = useMemo(() => {
+    const result = praesidien.map(praesidium => ({
       ...praesidium,
       reviere: getReviereByPraesidium(praesidium.id),
       isExpanded: expandedPraesidien.has(praesidium.id),
       selectedCount: getReviereByPraesidium(praesidium.id).filter(r => selectedStations.includes(r.id)).length
-    })), 
-    [praesidien, getReviereByPraesidium, expandedPraesidien, selectedStations]
-  );
+    }));
+    console.log('UltraModernStep2: PraesidiumWithReviere:', result.length, result);
+    return result;
+  }, [praesidien, getReviereByPraesidium, expandedPraesidien, selectedStations]);
 
   // PERFORMANCE: Optimierte Filterung mit Memoization
-  const filteredPraesidien = useMemo(
-    () => praesidiumWithReviere.filter(p => 
+  const filteredPraesidien = useMemo(() => {
+    const result = praesidiumWithReviere.filter(p => 
       searchQuery === '' || 
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.reviere.some(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    ), 
-    [praesidiumWithReviere, searchQuery]
-  );
+    );
+    console.log('UltraModernStep2: FilteredPraesidien:', result.length, result);
+    return result;
+  }, [praesidiumWithReviere, searchQuery]);
 
   // PERFORMANCE: Memoized Tabs
   const tabs = useMemo(() => [
@@ -237,6 +244,9 @@ const UltraModernStep2: React.FC = () => {
     }
     setWizardStep(3);
   }, [totalSelected, setWizardStep]);
+
+  // Debug-Log
+  console.log('UltraModernStep2: Rendering with filteredPraesidien:', filteredPraesidien.length);
 
   // Erweiterte Quick Preview
   const QuickPreview = () => (
