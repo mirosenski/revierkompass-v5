@@ -1,20 +1,20 @@
 // UltraModernStep2.tsx (Komplett überarbeitet)
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Building, MapPin, ArrowRight, ChevronDown, Search, 
+import {
+  Building, MapPin, ChevronDown, Search,
   LayoutGrid, LayoutList, Plus, Mic, Command, CheckCircle2, Trash2, Users
 } from 'lucide-react';
 import { useStationStore } from '@/store/useStationStore';
 import { useWizardStore } from '@/store/useWizardStore';
 import { useAppStore } from '@/lib/store/app-store';
+import ModernNavigation from '../ModernNavigation';
 import toast from 'react-hot-toast';
 
 const UltraModernStep2: React.FC = () => {
   // States
   const [activeView, setActiveView] = useState<'grid' | 'map' | 'list'>('grid');
   const [activeTab, setActiveTab] = useState<'stations' | 'custom'>('stations');
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -28,7 +28,7 @@ const UltraModernStep2: React.FC = () => {
 
   // Store-Hooks
   const { stations, getStationsByType, getReviereByPraesidium, loadStations } = useStationStore();
-  const { selectedStations, setSelectedStations, selectedCustomAddresses, setSelectedCustomAddresses, setStep } = useWizardStore();
+  const { selectedStations, setSelectedStations, selectedCustomAddresses, setSelectedCustomAddresses } = useWizardStore();
   const { customAddresses, addCustomAddress, deleteCustomAddress, setWizardStep } = useAppStore();
   
   // Load stations on mount
@@ -198,6 +198,8 @@ const UltraModernStep2: React.FC = () => {
       count: selectedCustomAddresses.length
     }
   ];
+
+  const totalSelected = selectedStations.length + selectedCustomAddresses.length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -579,99 +581,9 @@ const UltraModernStep2: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200 dark:border-gray-700 z-40 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-end">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleContinue}
-            disabled={selectedStations.length + selectedCustomAddresses.length === 0}
-            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-medium shadow-lg disabled:opacity-50 flex items-center space-x-2"
-          >
-            <span>Weiter →</span>
-            <ArrowRight className="h-5 w-5" />
-          </motion.button>
-        </div>
-      </div>
 
-      {/* Floating Action Panel */}
-      <motion.div
-        initial={{ y: 300 }}
-        animate={{ y: isPanelOpen ? 0 : 240 }}
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 240 }}
-        className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-t-3xl shadow-2xl z-50 border-t border-gray-200 dark:border-gray-700"
-      >
-        {/* Drag Handle */}
-        <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mt-3 cursor-grab active:cursor-grabbing" />
-        
-        {/* Quick Stats */}
-        <div className="px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {selectedStations.length + selectedCustomAddresses.length}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Ziele ausgewählt
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setIsPanelOpen(!isPanelOpen)}
-              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
-              {isPanelOpen ? 'Verstecken' : 'Details'}
-            </button>
-          </div>
-        </div>
-        
-        {/* Expandable Selection Preview */}
-        <AnimatePresence>
-          {isPanelOpen && (
-            <motion.div 
-              className="px-6 pb-6 max-h-96 overflow-y-auto"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              <h3 className="font-semibold mb-3 text-gray-900 dark:text-white">
-                Ausgewählte Ziele:
-              </h3>
-              <div className="space-y-2">
-                {selectedStations.map(id => {
-                  const station = stations.find(s => s.id === id);
-                  return station ? (
-                    <div key={id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm flex justify-between items-center">
-                      <span className="text-gray-900 dark:text-white">{station.name}</span>
-                      <button 
-                        onClick={() => handleStationToggle(id)}
-                        className="text-red-500 hover:text-red-700 transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : null;
-                })}
-                {selectedCustomAddresses.map(id => {
-                  const address = customAddresses.find(a => a.id === id);
-                  return address ? (
-                    <div key={id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm flex justify-between items-center">
-                      <span className="text-gray-900 dark:text-white">{address.name}</span>
-                      <button 
-                        onClick={() => handleCustomToggle(id)}
-                        className="text-red-500 hover:text-red-700 transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : null;
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+      {/* Moderne Navigation */}
+      <ModernNavigation totalSelected={totalSelected} onContinue={handleContinue} />
 
       {/* Command Palette */}
       <AnimatePresence>
