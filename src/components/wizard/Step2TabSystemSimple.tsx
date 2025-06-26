@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, MapPin, Plus, Edit2, Trash2, Building, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
+import { useWizardStore } from '@/store/useWizardStore';
 import { toast } from 'react-hot-toast';
 
 interface Station {
@@ -62,7 +63,7 @@ const Step2TabSystemSimple: React.FC = () => {
   ]);
   
   const [customAddresses, setCustomAddresses] = useState<CustomAddress[]>([]);
-  const [selectedStations, setSelectedStations] = useState<string[]>([]);
+  const { selectedStations, setSelectedStations } = useWizardStore();
   const [selectedCustom, setSelectedCustom] = useState<string[]>([]);
   const [cityFilter, setCityFilter] = useState('');
   
@@ -95,11 +96,10 @@ const Step2TabSystemSimple: React.FC = () => {
   };
 
   const handleStationToggle = (stationId: string) => {
-    setSelectedStations(prev => 
-      prev.includes(stationId)
-        ? prev.filter(id => id !== stationId)
-        : [...prev, stationId]
-    );
+    const updated = selectedStations.includes(stationId)
+      ? selectedStations.filter(id => id !== stationId)
+      : [...selectedStations, stationId];
+    setSelectedStations(updated);
   };
 
   const handleCustomToggle = (addressId: string) => {

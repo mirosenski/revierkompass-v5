@@ -1,18 +1,20 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
-interface WizardStore {
-  currentStep: 1 | 2 | 3
-  startAddress: string
-  selectedPraesidiumId: string | null
-  selectedReviereIds: string[]
+  interface WizardStore {
+    currentStep: 1 | 2 | 3
+    startAddress: string
+    selectedPraesidiumId: string | null
+    selectedReviereIds: string[]
+    selectedStations: string[]
 
-  setStep: (step: 1 | 2 | 3) => void
-  setStartAddress: (address: string) => void
-  selectPraesidium: (id: string) => void
-  toggleRevier: (id: string) => void
-  resetWizard: () => void
-}
+    setStep: (step: 1 | 2 | 3) => void
+    setStartAddress: (address: string) => void
+    selectPraesidium: (id: string) => void
+    toggleRevier: (id: string) => void
+    setSelectedStations: (stations: string[]) => void
+    resetWizard: () => void
+  }
 
 export const useWizardStore = create<WizardStore>()(
   persist(
@@ -21,6 +23,7 @@ export const useWizardStore = create<WizardStore>()(
       startAddress: '',
       selectedPraesidiumId: null,
       selectedReviereIds: [],
+      selectedStations: [],
 
       setStep: (step) => set({ currentStep: step }),
       setStartAddress: (address) => set({ startAddress: address }),
@@ -31,8 +34,15 @@ export const useWizardStore = create<WizardStore>()(
             ? state.selectedReviereIds.filter((r) => r !== id)
             : [...state.selectedReviereIds, id]
         })),
+      setSelectedStations: (stations) => set({ selectedStations: stations }),
       resetWizard: () =>
-        set({ currentStep: 1, startAddress: '', selectedPraesidiumId: null, selectedReviereIds: [] })
+        set({
+          currentStep: 1,
+          startAddress: '',
+          selectedPraesidiumId: null,
+          selectedReviereIds: [],
+          selectedStations: []
+        })
     }),
     {
       name: 'wizard-store',
@@ -40,7 +50,8 @@ export const useWizardStore = create<WizardStore>()(
       partialize: (state) => ({
         startAddress: state.startAddress,
         selectedPraesidiumId: state.selectedPraesidiumId,
-        selectedReviereIds: state.selectedReviereIds
+        selectedReviereIds: state.selectedReviereIds,
+        selectedStations: state.selectedStations
       })
     }
   )
