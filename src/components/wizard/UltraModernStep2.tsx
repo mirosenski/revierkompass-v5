@@ -2,14 +2,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Building, MapPin, ChevronDown, Search,
-  LayoutGrid, LayoutList, Plus, Mic, Command, CheckCircle2, Trash2, Users, ArrowRight,
+  Building, MapPin, ChevronDown,
+  Plus, Mic, Command, CheckCircle2, Trash2, Users, ArrowRight,
   X, Volume2, VolumeX, Settings, Filter, Star, Clock, Map
 } from 'lucide-react';
 import { useStationStore } from '@/store/useStationStore';
 import { useWizardStore } from '@/store/useWizardStore';
 import { useAppStore } from '@/lib/store/app-store';
 import ModernNavigation from '../ModernNavigation';
+import FloatingSearchViewBar from '../FloatingSearchViewBar';
 import toast from 'react-hot-toast';
 
 // TypeScript-Typen für Web Speech API
@@ -399,69 +400,9 @@ const UltraModernStep2: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Header mit erweiterter Such- und Sprachsteuerung */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <div className="relative flex-1 max-w-3xl">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Suche nach Präsidien, Revieren oder Adressen... (⌘+K für Befehle, ⌘+M für Sprachsteuerung)"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-20 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 ring-blue-500 transition-all"
-          />
-          
-          {/* Kompakte Sprachsteuerung in Suchleiste */}
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
-            <button
-              onClick={toggleVoiceRecognition}
-              className={`p-2 rounded-lg transition-all ${
-                isListening 
-                  ? 'bg-red-500 text-white animate-pulse' 
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-              title={isListening ? 'Spracherkennung stoppen' : 'Spracherkennung starten (⌘+M)'}
-            >
-              {isListening ? <VolumeX className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </button>
-            
-            <button
-              onClick={() => setShowCommandPalette(true)}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
-              title="Befehle öffnen (⌘+K)"
-            >
-              <Command className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          {/* View Switcher */}
-          <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-1 flex space-x-1">
-            <button
-              onClick={() => setActiveView('grid')}
-              className={`p-2 rounded-md transition-all ${
-                activeView === 'grid' 
-                  ? 'bg-white dark:bg-gray-800 shadow text-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-              title="Rasteransicht"
-            >
-              <LayoutGrid className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setActiveView('list')}
-              className={`p-2 rounded-md transition-all ${
-                activeView === 'list' 
-                  ? 'bg-white dark:bg-gray-800 shadow text-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-              title="Listenansicht"
-            >
-              <LayoutList className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-bold">Ziele auswählen</h2>
       </div>
 
       {/* Sprach-Feedback Overlay */}
@@ -891,7 +832,17 @@ const UltraModernStep2: React.FC = () => {
           )}
         </AnimatePresence>
       </motion.div>
-      
+
+      {/* Floating Search & View Bar */}
+      <FloatingSearchViewBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        activeView={activeView}
+        setActiveView={setActiveView}
+        handleVoiceCommand={toggleVoiceRecognition}
+        setShowCommandPalette={setShowCommandPalette}
+      />
+
       {/* Moderne Navigation */}
       <ModernNavigation totalSelected={totalSelected} onContinue={handleContinue} />
 
