@@ -27,36 +27,35 @@ const EnhancedBreadcrumbs: React.FC<BreadcrumbsProps> = ({ currentView, onNaviga
     const items: BreadcrumbItem[] = [];
 
     if (currentView === 'wizard') {
-      // Direkt mit Wizard-Schritten beginnen
-      items.push({ 
-        label: 'Adresse', 
-        icon: Home, 
+      const canGoStep2 = !!wizard.startAddress;
+      const canGoStep3 = wizard.selectedStations.length > 0 || wizard.selectedCustomAddresses.length > 0;
+
+      items.push({
+        label: 'Adresse',
+        icon: Home,
         active: wizard.currentStep === 1,
-        clickable: wizard.currentStep > 1,
+        clickable: wizard.currentStep !== 1,
         view: 'wizard',
         step: 1
       });
-      
-      if (wizard.currentStep >= 2) {
-        items.push({ 
-          label: 'Ziele', 
-          icon: undefined, 
-          active: wizard.currentStep === 2,
-          clickable: wizard.currentStep > 2,
-          view: 'wizard',
-          step: 2
-        });
-      }
-      if (wizard.currentStep >= 3) {
-        items.push({ 
-          label: 'Export', 
-          icon: undefined, 
-          active: wizard.currentStep === 3,
-          clickable: false, // Aktueller Schritt nicht klickbar
-          view: 'wizard',
-          step: 3
-        });
-      }
+
+      items.push({
+        label: 'Ziele',
+        icon: undefined,
+        active: wizard.currentStep === 2,
+        clickable: canGoStep2 && wizard.currentStep !== 2,
+        view: 'wizard',
+        step: 2
+      });
+
+      items.push({
+        label: 'Export',
+        icon: undefined,
+        active: wizard.currentStep === 3,
+        clickable: canGoStep3 && wizard.currentStep !== 3,
+        view: 'wizard',
+        step: 3
+      });
     } else if (currentView === 'login') {
       items.push({ 
         label: 'RevierKompass', 

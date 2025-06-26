@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Users, Download, CheckCircle } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
+import { toast } from 'react-hot-toast';
 import Step1AddressInputSimple from './Step1AddressInputSimple';
 import UltraModernStep2 from './UltraModernStep2';
 import Step3PremiumExport from './Step3PremiumExport';
@@ -49,6 +50,30 @@ const WizardContainer: React.FC = () => {
     }
   ];
 
+  const handleStepClick = (stepNumber: number) => {
+    if (stepNumber === 1) {
+      setWizardStep(1);
+      return;
+    }
+
+    if (stepNumber === 2) {
+      if (wizard.startAddress) {
+        setWizardStep(2);
+      } else {
+        toast.error('Bitte geben Sie zuerst eine Startadresse ein');
+      }
+      return;
+    }
+
+    if (stepNumber === 3) {
+      if (wizard.selectedStations.length > 0 || wizard.selectedCustomAddresses.length > 0) {
+        setWizardStep(3);
+      } else {
+        toast.error('Bitte wählen Sie zuerst mindestens ein Ziel aus');
+      }
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Kompakte Header-Sektion */}
@@ -87,17 +112,13 @@ const WizardContainer: React.FC = () => {
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   className={`flex flex-col items-center space-y-2 cursor-pointer transition-all duration-300 ${
-                    isActive 
-                      ? 'text-blue-600 dark:text-blue-400' 
-                      : isCompleted 
+                    isActive
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : isCompleted
                         ? 'text-green-600 dark:text-green-400'
                         : 'text-gray-400 dark:text-gray-500'
                   }`}
-                  onClick={() => {
-                    if (isCompleted || wizard.currentStep >= step.number) {
-                      setWizardStep(step.number);
-                    }
-                  }}
+                  onClick={() => handleStepClick(step.number)}
                 >
                   <div className={`relative p-4 rounded-2xl shadow-lg transition-all duration-300 ${
                     isActive 
