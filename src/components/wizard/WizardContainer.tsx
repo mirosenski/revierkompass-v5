@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Users, Download, CheckCircle } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
 import Step1AddressInputSimple from './Step1AddressInputSimple';
-import Step2TabSystemSimple from './Step2TabSystemSimple';
+import UltraModernStep2 from './UltraModernStep2';
 import Step3PremiumExport from './Step3PremiumExport';
 
 const WizardContainer: React.FC = () => {
@@ -151,7 +151,7 @@ const WizardContainer: React.FC = () => {
         className="min-h-[500px]"
       >
         {wizard.currentStep === 1 && <Step1AddressInputSimple />}
-        {wizard.currentStep === 2 && <Step2TabSystemSimple />}
+        {wizard.currentStep === 2 && <UltraModernStep2 />}
         {wizard.currentStep === 3 && <Step3PremiumExport />}
       </motion.div>
     </div>
