@@ -66,7 +66,7 @@ Die implementierte Lösung umfasst eine vollständig überarbeitete Step2-Kompon
 - AnimatePresence für Mount/Unmount
 
 ### State Management
-- Zustand für alle Stores (useStationStore, useWizardStore, useAppStore)
+- Zustand für alle Stores (useStationStore, useAppStore)
 - Persistierung der Auswahl
 - Optimierte Re-Renders
 

@@ -29,8 +29,7 @@ import UltraModernStep2 from './UltraModernStep2';
 // ...
 3. Stores prüfen
 useStationStore: Liefert Stationsdaten (getStationsByType, getReviereByPraesidium)
-useWizardStore: Verwaltet Auswahl (selectedStations, setSelectedStations)
-useAppStore: Navigations-Logik (setWizardStep)
+useAppStore: Verwaltet Wizard-Auswahl und Navigation (selectedStations, setSelectedStations, setWizardStep)
 Funktionsweise
 1.
 Step2 startet: Lädt Stationen via loadStations()
