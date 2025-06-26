@@ -11,7 +11,6 @@ Die Anwendung startet **immer** mit der Adressen-Startseite!
 
 ### Option 2: Manueller Start
 ```bash
-npm install
 npm run dev
 ```
 
