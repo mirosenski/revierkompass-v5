@@ -37,7 +37,7 @@ function App() {
     }
   }, [isAuthenticated, isAdmin, currentView]);
 
-  // Zentrale Neustart-Funktion
+  // Zentrale Neustart-Funktion für Logo-Klick
   const handleRestart = () => {
     console.log('🔄 RevierKompass Neustart wird durchgeführt...');
     
@@ -50,10 +50,6 @@ function App() {
     // Zum Wizard mit Schritt 1 navigieren
     setCurrentView('wizard');
     setWizardStep(1);
-    
-    // Optional: Auch Auth-Store zurücksetzen (falls gewünscht)
-    // const { logout } = useAuthStore.getState();
-    // logout();
     
     console.log('✅ Neustart abgeschlossen - alle Daten zurückgesetzt');
   };

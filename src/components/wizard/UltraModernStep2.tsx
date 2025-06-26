@@ -1,4 +1,4 @@
-// UltraModernStep2.tsx (Komplett überarbeitet)
+// UltraModernStep2.tsx (Optimized & Accessible)
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -6,9 +6,9 @@ import {
   List, Grid3X3, Map as MapIcon, X, Search, ArrowRight
 } from 'lucide-react';
 import { useStationStore } from '@/store/useStationStore';
+import { useWizardStore } from '@/store/useWizardStore';
 import { useAppStore } from '@/lib/store/app-store';
 import toast from 'react-hot-toast';
-import { onReset } from '@/lib/eventBus';
 
 // TypeScript-Typen
 interface Station {
@@ -96,91 +96,71 @@ const UltraModernStep2: React.FC = () => {
 
   // Store-Hooks
   const { stations, getStationsByType, getReviereByPraesidium, loadStations } = useStationStore();
-  const {
+  const { 
+    customAddresses, 
+    addCustomAddress, 
+    deleteCustomAddress, 
+    setWizardStep,
     wizard: { selectedStations, selectedCustomAddresses },
     setSelectedStations,
-    setSelectedCustomAddresses,
-    customAddresses,
-    addCustomAddress,
-    deleteCustomAddress,
-    setWizardStep
+    setSelectedCustomAddresses
   } = useAppStore();
   
+  // Initialize and cleanup
   useEffect(() => {
-    console.log('UltraModernStep2: Loading stations...');
-    loadStations();
-    
-    // Reset aller States bei Neustart/Seitenneuladeung
-    const resetOnStart = () => {
-      console.log('UltraModernStep2: Resetting states on start...');
-      setSearchQuery('');
-      setActiveView('grid');
-      setActiveTab('stations');
-      setShowAddForm(false);
-      setExpandedPraesidien(new Set());
-      setShowQuickPreview(false);
-      setLastSelectedId(null);
-      setFormData({ name: '', street: '', zipCode: '', city: '' });
-      
-      // Optional: Auch die Auswahl zurücksetzen
-      // setSelectedStations([]);
-      // setSelectedCustomAddresses([]);
+    const loadData = async () => {
+      try {
+        await loadStations();
+      } catch (error) {
+        console.error('Failed to load stations:', error);
+        toast.error('Fehler beim Laden der Stationen');
+      }
     };
-    
-    // Reset beim ersten Laden
-    resetOnStart();
-    
-    // Registrierung für globalen Reset
-    const unsubscribe = onReset(() => {
-      console.log('UltraModernStep2: Global reset event received');
-      resetOnStart();
-    });
-    
-    // Optional: Reset bei Seitenneuladeung (wenn gewünscht)
-    const handleBeforeUnload = () => {
-      // Hier könnte man noch zusätzliche Cleanup-Logik hinzufügen
-      console.log('UltraModernStep2: Page unloading, cleanup...');
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
 
+    loadData();
+    resetStates();
+
+    const handleGlobalReset = () => resetStates();
+    window.addEventListener('revierkompass:reset', handleGlobalReset);
+    
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      unsubscribe();
+      window.removeEventListener('revierkompass:reset', handleGlobalReset);
     };
   }, [loadStations]);
-  
-  // PERFORMANCE: Memoized Berechnungen
-  const praesidien = useMemo(() => {
-    const result = getStationsByType('praesidium');
-    console.log('UltraModernStep2: Praesidien loaded:', result.length, result);
-    return result;
-  }, [getStationsByType]);
-  
-  const praesidiumWithReviere: PraesidiumWithDetails[] = useMemo(() => {
-    const result = praesidien.map(praesidium => ({
+
+  const resetStates = useCallback(() => {
+    setSearchQuery('');
+    setActiveView('grid');
+    setActiveTab('stations');
+    setShowAddForm(false);
+    setExpandedPraesidien(new Set());
+    setShowQuickPreview(false);
+    setLastSelectedId(null);
+    setFormData({ name: '', street: '', zipCode: '', city: '' });
+  }, []);
+
+  // Memoized data
+  const praesidien = useMemo(() => getStationsByType('praesidium'), [getStationsByType]);
+  const praesidiumWithReviere = useMemo(() => 
+    praesidien.map(praesidium => ({
       ...praesidium,
       reviere: getReviereByPraesidium(praesidium.id),
       isExpanded: expandedPraesidien.has(praesidium.id),
-      selectedCount: getReviereByPraesidium(praesidium.id).filter(r => selectedStations.includes(r.id)).length
-    }));
-    console.log('UltraModernStep2: PraesidiumWithReviere:', result.length, result);
-    return result;
-  }, [praesidien, getReviereByPraesidium, expandedPraesidien, selectedStations]);
+      selectedCount: getReviereByPraesidium(praesidium.id)
+        .filter(r => selectedStations.includes(r.id)).length
+    })), 
+  [praesidien, getReviereByPraesidium, expandedPraesidien, selectedStations]);
 
-  // PERFORMANCE: Optimierte Filterung mit Memoization
-  const filteredPraesidien = useMemo(() => {
-    const result = praesidiumWithReviere.filter(p => 
+  const filteredPraesidien = useMemo(() => 
+    praesidiumWithReviere.filter(p => 
       searchQuery === '' || 
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.reviere.some(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-    console.log('UltraModernStep2: FilteredPraesidien:', result.length, result);
-    return result;
-  }, [praesidiumWithReviere, searchQuery]);
+    ), 
+  [praesidiumWithReviere, searchQuery]);
 
-  // PERFORMANCE: Memoized Tabs
+  // Tab configuration
   const tabs = useMemo(() => [
     {
       id: 'stations',
@@ -196,7 +176,7 @@ const UltraModernStep2: React.FC = () => {
     }
   ], [selectedStations.length, selectedCustomAddresses.length]);
 
-  // PERFORMANCE: Callback-Funktionen
+  // Optimized callbacks
   const togglePraesidiumWithReviere = useCallback((praesidiumId: string, event?: React.MouseEvent | React.KeyboardEvent) => {
     const praesidium = praesidiumWithReviere.find(p => p.id === praesidiumId);
     if (!praesidium) return;
@@ -205,70 +185,50 @@ const UltraModernStep2: React.FC = () => {
     const allIds = [praesidiumId, ...reviereIds];
     const allSelected = allIds.every(id => selectedStations.includes(id));
 
-    // Multi-Select mit Strg/Cmd-Taste
-    if (event && (event.ctrlKey || event.metaKey)) {
-      if (allSelected) {
-        setSelectedStations(selectedStations.filter(id => !allIds.includes(id)));
-        toast.success(`${praesidium.name} abgewählt`);
-      } else {
-        setSelectedStations([...new Set([...selectedStations, ...allIds])]);
-        toast.success(`${praesidium.name} mit allen Revieren ausgewählt`);
-      }
-      setLastSelectedId(praesidiumId);
-      return;
-    }
-
-    // Normales Toggle-Verhalten
-    if (allSelected) {
-      setSelectedStations(selectedStations.filter(id => !allIds.includes(id)));
-      toast.success(`${praesidium.name} abgewählt`);
+    if (event?.ctrlKey || event?.metaKey) {
+      const newSelection = allSelected 
+        ? selectedStations.filter(id => !allIds.includes(id))
+        : [...new Set([...selectedStations, ...allIds])];
+      setSelectedStations(newSelection);
     } else {
-      setSelectedStations([...new Set([...selectedStations, ...allIds])]);
-      toast.success(`${praesidium.name} mit allen Revieren ausgewählt`);
+      const newSelection = allSelected 
+        ? selectedStations.filter(id => !allIds.includes(id))
+        : [...new Set([...selectedStations, ...allIds])];
+      setSelectedStations(newSelection);
     }
+    setLastSelectedId(praesidiumId);
   }, [praesidiumWithReviere, selectedStations, setSelectedStations]);
 
   const togglePraesidiumExpansion = useCallback((praesidiumId: string) => {
     setExpandedPraesidien(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(praesidiumId)) {
-        newSet.delete(praesidiumId);
-      } else {
-        newSet.add(praesidiumId);
-      }
+      newSet.has(praesidiumId) ? newSet.delete(praesidiumId) : newSet.add(praesidiumId);
       return newSet;
     });
   }, []);
 
   const handleStationToggle = useCallback((stationId: string) => {
-    if (selectedStations.includes(stationId)) {
-      setSelectedStations(selectedStations.filter(id => id !== stationId));
-    } else {
-      setSelectedStations([...selectedStations, stationId]);
-    }
+    const newSelection = selectedStations.includes(stationId) 
+      ? selectedStations.filter(id => id !== stationId)
+      : [...selectedStations, stationId];
+    setSelectedStations(newSelection);
   }, [selectedStations, setSelectedStations]);
 
   const handleCustomToggle = useCallback((addressId: string) => {
-    if (selectedCustomAddresses.includes(addressId)) {
-      setSelectedCustomAddresses(selectedCustomAddresses.filter(id => id !== addressId));
-    } else {
-      setSelectedCustomAddresses([...selectedCustomAddresses, addressId]);
-    }
+    const newSelection = selectedCustomAddresses.includes(addressId)
+      ? selectedCustomAddresses.filter(id => id !== addressId)
+      : [...selectedCustomAddresses, addressId];
+    setSelectedCustomAddresses(newSelection);
   }, [selectedCustomAddresses, setSelectedCustomAddresses]);
 
-  const handleAddAddress = useCallback(() => {
+  const handleAddAddress = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
     if (!formData.name || !formData.street || !formData.zipCode || !formData.city) {
       toast.error('Bitte füllen Sie alle Felder aus');
       return;
     }
 
-    addCustomAddress({
-      name: formData.name,
-      street: formData.street,
-      zipCode: formData.zipCode,
-      city: formData.city
-    });
-    
+    addCustomAddress(formData);
     setFormData({ name: '', street: '', zipCode: '', city: '' });
     setShowAddForm(false);
     toast.success('Adresse erfolgreich hinzugefügt');
@@ -276,11 +236,12 @@ const UltraModernStep2: React.FC = () => {
 
   const handleDeleteAddress = useCallback((addressId: string) => {
     deleteCustomAddress(addressId);
-    setSelectedCustomAddresses(selectedCustomAddresses.filter(id => id !== addressId));
+    const newSelection = selectedCustomAddresses.filter(id => id !== addressId);
+    setSelectedCustomAddresses(newSelection);
     toast.success('Adresse gelöscht');
   }, [deleteCustomAddress, selectedCustomAddresses, setSelectedCustomAddresses]);
 
-  // Berechnete Werte
+  // Computed values
   const totalSelected = selectedStations.length + selectedCustomAddresses.length;
 
   const handleContinue = useCallback(() => {
@@ -291,29 +252,7 @@ const UltraModernStep2: React.FC = () => {
     setWizardStep(3);
   }, [totalSelected, setWizardStep]);
 
-  // Reset-Funktion für Neustart
-  const handleReset = useCallback(() => {
-    console.log('UltraModernStep2: Manual reset triggered');
-    setSearchQuery('');
-    setActiveView('grid');
-    setActiveTab('stations');
-    setShowAddForm(false);
-    setExpandedPraesidien(new Set());
-    setShowQuickPreview(false);
-    setLastSelectedId(null);
-    setFormData({ name: '', street: '', zipCode: '', city: '' });
-    
-    // Optional: Auch die Auswahl zurücksetzen
-    // setSelectedStations([]);
-    // setSelectedCustomAddresses([]);
-    
-    toast.success('Neustart durchgeführt - alle Einstellungen zurückgesetzt');
-  }, []);
-
-  // Debug-Log
-  console.log('UltraModernStep2: Rendering with filteredPraesidien:', filteredPraesidien.length);
-
-  // Erweiterte Quick Preview
+  // View Components
   const QuickPreview = () => (
     <AnimatePresence>
       {showQuickPreview && (
@@ -337,27 +276,28 @@ const UltraModernStep2: React.FC = () => {
             {selectedStations.length === 0 && selectedCustomAddresses.length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-4">Noch keine Auswahl getroffen</p>
             ) : (
-              <>
-                {selectedStations.map(id => {
-                  const station = stations.find(s => s.id === id);
-                  return station ? (
-                    <motion.div
-                      key={id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+              selectedStations.map(id => {
+                const station = stations.find(s => s.id === id);
+                return station ? (
+                  <motion.div
+                    key={id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+                  >
+                    <span className="text-sm text-gray-900 dark:text-white">{station.name}</span>
+                    <button
+                      onClick={() => {
+                        const newSelection = selectedStations.filter(s => s !== id);
+                        setSelectedStations(newSelection);
+                      }}
+                      className="text-red-500 hover:text-red-700"
                     >
-                      <span className="text-sm text-gray-900 dark:text-white">{station.name}</span>
-                      <button
-                        onClick={() => setSelectedStations(selectedStations.filter(s => s !== id))}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </motion.div>
-                  ) : null;
-                })}
-              </>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </motion.div>
+                ) : null;
+              })
             )}
           </div>
         </motion.div>
@@ -365,10 +305,9 @@ const UltraModernStep2: React.FC = () => {
     </AnimatePresence>
   );
 
-  // Grid View Component
   const GridView = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="grid" aria-label="Polizeistationen Grid-Ansicht">
-      {filteredPraesidien.map((praesidium) => {
+      {filteredPraesidien.map(praesidium => {
         const isFullySelected = [praesidium.id, ...praesidium.reviere.map(r => r.id)]
           .every(id => selectedStations.includes(id));
         const isPartiallySelected = praesidium.selectedCount > 0 && !isFullySelected;
@@ -505,10 +444,9 @@ const UltraModernStep2: React.FC = () => {
     </div>
   );
 
-  // List View Component
   const ListView = () => (
     <div className="space-y-4" role="list" aria-label="Polizeistationen Listen-Ansicht">
-      {filteredPraesidien.map((praesidium) => {
+      {filteredPraesidien.map(praesidium => {
         const isFullySelected = [praesidium.id, ...praesidium.reviere.map(r => r.id)]
           .every(id => selectedStations.includes(id));
 
@@ -568,7 +506,7 @@ const UltraModernStep2: React.FC = () => {
               </div>
             </div>
 
-            {/* Reviere immer sichtbar in List View */}
+            {/* Reviere in List View */}
             <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-2" role="region" aria-label={`Reviere von ${praesidium.name}`}>
               {praesidium.reviere.map(revier => (
                 <motion.div
@@ -611,7 +549,6 @@ const UltraModernStep2: React.FC = () => {
     </div>
   );
 
-  // Map View Component (Placeholder)
   const MapView = () => (
     <div className="relative h-[600px] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden">
       <div className="absolute inset-0 flex items-center justify-center">
@@ -676,59 +613,30 @@ const UltraModernStep2: React.FC = () => {
             {/* View Switcher */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 rounded-xl p-1 shadow-sm" role="group" aria-label="Ansicht wechseln">
-                <button
-                  onClick={() => setActiveView('grid')}
-                  className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all ${
-                    activeView === 'grid'
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                  aria-pressed={activeView === 'grid'}
-                  aria-label="Grid-Ansicht"
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                  <span>Raster</span>
-                </button>
-                <button
-                  onClick={() => setActiveView('list')}
-                  className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all ${
-                    activeView === 'list'
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                  aria-pressed={activeView === 'list'}
-                  aria-label="Listen-Ansicht"
-                >
-                  <List className="h-4 w-4" />
-                  <span>Liste</span>
-                </button>
-                <button
-                  onClick={() => setActiveView('map')}
-                  className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all ${
-                    activeView === 'map'
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                  aria-pressed={activeView === 'map'}
-                  aria-label="Karten-Ansicht"
-                >
-                  <MapIcon className="h-4 w-4" />
-                  <span>Karte</span>
-                </button>
+                {[
+                  { view: 'grid', icon: Grid3X3, label: 'Raster' },
+                  { view: 'list', icon: List, label: 'Liste' },
+                  { view: 'map', icon: MapIcon, label: 'Karte' }
+                ].map(({ view, icon: Icon, label }) => (
+                  <button
+                    key={view}
+                    onClick={() => setActiveView(view as 'grid' | 'list' | 'map')}
+                    className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all ${
+                      activeView === view
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    aria-pressed={activeView === view}
+                    aria-label={`${label}-Ansicht`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{label}</span>
+                  </button>
+                ))}
               </div>
 
               {/* Action Buttons */}
               <div className="flex items-center space-x-3">
-                {/* Neustart Button */}
-                <button
-                  onClick={handleReset}
-                  className="px-4 py-2 rounded-lg flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white transition-all"
-                  aria-label="Neustart - Alle Einstellungen zurücksetzen"
-                >
-                  <X className="h-4 w-4" />
-                  <span>Neustart</span>
-                </button>
-
                 {/* Quick Preview Toggle */}
                 <button
                   onClick={() => setShowQuickPreview(!showQuickPreview)}
@@ -757,7 +665,6 @@ const UltraModernStep2: React.FC = () => {
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
-                
                 return (
                   <button
                     key={tab.id}
@@ -827,6 +734,8 @@ const UltraModernStep2: React.FC = () => {
                       <button
                         onClick={() => setShowAddForm(!showAddForm)}
                         className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                        aria-expanded={showAddForm}
+                        aria-controls="add-address-form"
                       >
                         <Plus className="h-4 w-4" />
                         <span>Neue Adresse</span>
@@ -836,10 +745,12 @@ const UltraModernStep2: React.FC = () => {
                     {/* Add Form */}
                     <AnimatePresence>
                       {showAddForm && (
-                        <motion.div
+                        <motion.form
+                          id="add-address-form"
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
+                          onSubmit={handleAddAddress}
                           className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6"
                         >
                           <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
@@ -847,62 +758,71 @@ const UltraModernStep2: React.FC = () => {
                           </h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Name/Bezeichnung
                               </label>
                               <input
+                                id="name"
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                                 placeholder="z.B. Büro, Zuhause"
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                required
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              <label htmlFor="street" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Straße
                               </label>
                               <input
+                                id="street"
                                 type="text"
                                 value={formData.street}
                                 onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
                                 placeholder="z.B. Musterstraße 123"
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                required
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 PLZ
                               </label>
                               <input
+                                id="zipCode"
                                 type="text"
                                 value={formData.zipCode}
                                 onChange={(e) => setFormData(prev => ({ ...prev, zipCode: e.target.value }))}
                                 placeholder="z.B. 70173"
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                required
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Stadt
                               </label>
                               <input
+                                id="city"
                                 type="text"
                                 value={formData.city}
                                 onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
                                 placeholder="z.B. Stuttgart"
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                required
                               />
                             </div>
                           </div>
                           <div className="flex space-x-3 mt-4">
                             <button
-                              onClick={handleAddAddress}
+                              type="submit"
                               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                             >
                               Hinzufügen
                             </button>
                             <button
+                              type="button"
                               onClick={() => {
                                 setShowAddForm(false);
                                 setFormData({ name: '', street: '', zipCode: '', city: '' });
@@ -912,7 +832,7 @@ const UltraModernStep2: React.FC = () => {
                               Abbrechen
                             </button>
                           </div>
-                        </motion.div>
+                        </motion.form>
                       )}
                     </AnimatePresence>
 
@@ -1008,7 +928,7 @@ const UltraModernStep2: React.FC = () => {
           <QuickPreview />
         </div>
 
-        {/* Moderne Sticky Bottom Navigation */}
+        {/* Modern Sticky Bottom Navigation */}
         <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
