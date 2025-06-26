@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, MapPin, Plus, Edit2, Trash2, Building, ArrowRight } from 'lucide-react';
+import { Users, MapPin, Plus, Edit2, Trash2, Building, ArrowRight, ChevronDown } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
 import { useWizardStore } from '@/store/useWizardStore';
-import { useStationStore } from '@/store/useStationStore'
+import { useStationStore } from '@/store/useStationStore';
 import { toast } from 'react-hot-toast';
-
-interface Station {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-  type: 'Präsidium' | 'Revier';
-}
 
 interface CustomAddress {
   id: string;
@@ -25,12 +17,14 @@ interface CustomAddress {
 
 const Step2TabSystemSimple: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'stations' | 'custom'>('stations');
-  const { stations, loadStations, isLoading, error } = useStationStore();
+  const { stations, loadStations, isLoading, error, getStationsByType, getReviereByPraesidium } = useStationStore();
   
-  const [customAddresses, setCustomAddresses] = useState<CustomAddress[]>([]);
-  const { selectedStations, setSelectedStations } = useWizardStore();
-  const [selectedCustom, setSelectedCustom] = useState<string[]>([]);
-  const [cityFilter, setCityFilter] = useState('');
+  // Store-basierte Custom Addresses
+  const { customAddresses, addCustomAddress, deleteCustomAddress } = useAppStore();
+  const { selectedStations, setSelectedStations, selectedCustomAddresses, setSelectedCustomAddresses } = useWizardStore();
+  
+  // Akkordeon-Zustand für Präsidien
+  const [expandedPraesidien, setExpandedPraesidien] = useState<string[]>([]);
   
   // Custom address form
   const [showAddForm, setShowAddForm] = useState(false);
@@ -45,24 +39,23 @@ const Step2TabSystemSimple: React.FC = () => {
 
   // Load stations on mount
   useEffect(() => {
-    loadStations()
-  }, [])
+    loadStations();
+  }, [loadStations]);
 
-  // Load custom addresses from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('revierkompass_custom_addresses');
-      if (saved) {
-        setCustomAddresses(JSON.parse(saved));
-      }
-    } catch (error) {
-      console.error('Fehler beim Laden der eigenen Adressen:', error);
-    }
-  }, []);
+  // Hierarchische Daten vorbereiten
+  const praesidien = getStationsByType('praesidium');
+  const praesidiumWithReviere = praesidien.map(praesidium => ({
+    ...praesidium,
+    reviere: getReviereByPraesidium(praesidium.id)
+  }));
 
-  const saveCustomAddresses = (addresses: CustomAddress[]) => {
-    localStorage.setItem('revierkompass_custom_addresses', JSON.stringify(addresses));
-    setCustomAddresses(addresses);
+  // Akkordeon-Handler
+  const togglePraesidium = (praesidiumId: string) => {
+    setExpandedPraesidien(prev => 
+      prev.includes(praesidiumId)
+        ? prev.filter(id => id !== praesidiumId)
+        : [...prev, praesidiumId]
+    );
   };
 
   const handleStationToggle = (stationId: string) => {
@@ -73,11 +66,10 @@ const Step2TabSystemSimple: React.FC = () => {
   };
 
   const handleCustomToggle = (addressId: string) => {
-    setSelectedCustom(prev => 
-      prev.includes(addressId)
-        ? prev.filter(id => id !== addressId)
-        : [...prev, addressId]
-    );
+    const updated = selectedCustomAddresses.includes(addressId)
+      ? selectedCustomAddresses.filter(id => id !== addressId)
+      : [...selectedCustomAddresses, addressId];
+    setSelectedCustomAddresses(updated);
   };
 
   const handleAddAddress = () => {
@@ -86,14 +78,13 @@ const Step2TabSystemSimple: React.FC = () => {
       return;
     }
 
-    const newAddress: CustomAddress = {
-      id: Date.now().toString(),
-      ...formData,
-      isSelected: false
-    };
-
-    const updatedAddresses = [...customAddresses, newAddress];
-    saveCustomAddresses(updatedAddresses);
+    // Store-basiert
+    addCustomAddress({
+      name: formData.name,
+      street: formData.street,
+      zipCode: formData.zipCode,
+      city: formData.city
+    });
     
     setFormData({ name: '', street: '', zipCode: '', city: '' });
     setShowAddForm(false);
@@ -101,14 +92,14 @@ const Step2TabSystemSimple: React.FC = () => {
   };
 
   const handleDeleteAddress = (addressId: string) => {
-    const updatedAddresses = customAddresses.filter(addr => addr.id !== addressId);
-    saveCustomAddresses(updatedAddresses);
-    setSelectedCustom(prev => prev.filter(id => id !== addressId));
+    deleteCustomAddress(addressId);
+    const updated = selectedCustomAddresses.filter(id => id !== addressId);
+    setSelectedCustomAddresses(updated);
     toast.success('Adresse gelöscht');
   };
 
   const handleContinue = () => {
-    const totalSelected = selectedStations.length + selectedCustom.length;
+    const totalSelected = selectedStations.length + selectedCustomAddresses.length;
     if (totalSelected === 0) {
       toast.error('Bitte wählen Sie mindestens ein Ziel aus');
       return;
@@ -117,12 +108,6 @@ const Step2TabSystemSimple: React.FC = () => {
     toast.success(`${totalSelected} Ziele ausgewählt`);
     setWizardStep(3);
   };
-
-  const filteredStations = stations.filter(station =>
-    cityFilter === '' || station.city === cityFilter
-  );
-
-  const cities = [...new Set(stations.map(s => s.city))].sort();
 
   const tabs = [
     {
@@ -135,7 +120,7 @@ const Step2TabSystemSimple: React.FC = () => {
       id: 'custom',
       label: 'Eigene Adressen',
       icon: MapPin,
-      count: selectedCustom.length
+      count: selectedCustomAddresses.length
     }
   ];
 
@@ -143,6 +128,7 @@ const Step2TabSystemSimple: React.FC = () => {
     <div className="max-w-6xl mx-auto space-y-8">
       {isLoading && <div className="loading-indicator">Lade Stationen...</div>}
       {error && <div className="error-message">Fehler: {error}</div>}
+      
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -214,66 +200,52 @@ const Step2TabSystemSimple: React.FC = () => {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* City Filter */}
-                <div className="flex items-center space-x-4">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Stadt filtern:
-                  </label>
-                  <select
-                    value={cityFilter}
-                    onChange={(e) => setCityFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="">Alle Städte ({stations.length})</option>
-                    {cities.map(city => {
-                      const count = stations.filter(s => s.city === city).length;
-                      return (
-                        <option key={city} value={city}>
-                          {city} ({count})
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-
-                {/* Stations Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredStations.map((station) => (
-                    <motion.div
-                      key={station.id}
-                      whileHover={{ scale: 1.02 }}
-                      className={`p-4 border rounded-xl cursor-pointer transition-all duration-200 ${
-                        selectedStations.includes(station.id)
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                      }`}
-                      onClick={() => handleStationToggle(station.id)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-                            {station.name}
-                          </h3>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                            {station.address}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                            {station.city} • {station.type}
-                          </p>
+                {/* Präsidien/Reviere Hierarchie */}
+                <div className="space-y-4">
+                  {praesidiumWithReviere.map((praesidium) => (
+                    <div key={praesidium.id} className="praesidium-accordion border rounded-lg overflow-hidden">
+                      {/* Akkordeon-Header */}
+                      <div 
+                        className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                        onClick={() => togglePraesidium(praesidium.id)}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Building className="h-5 w-5 text-blue-600" />
+                          <div>
+                            <h3 className="font-semibold text-gray-900 dark:text-white">{praesidium.name}</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{praesidium.city}</p>
+                          </div>
                         </div>
-                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                          selectedStations.includes(station.id)
-                            ? 'border-blue-500 bg-blue-500'
-                            : 'border-gray-300 dark:border-gray-600'
-                        }`}>
-                          {selectedStations.includes(station.id) && (
-                            <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 8 8">
-                              <path d="M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z"/>
-                            </svg>
-                          )}
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {praesidium.reviere.length} Reviere
+                          </span>
+                          <ChevronDown className={`h-4 w-4 transition-transform ${
+                            expandedPraesidien.includes(praesidium.id) ? 'rotate-180' : ''
+                          }`} />
                         </div>
                       </div>
-                    </motion.div>
+
+                      {/* Reviere-Liste */}
+                      {expandedPraesidien.includes(praesidium.id) && (
+                        <div className="reviere-list border-t bg-gray-50 dark:bg-gray-700">
+                          {praesidium.reviere.map((revier) => (
+                            <div key={revier.id} className="revier-item flex items-center p-4 hover:bg-gray-100 dark:hover:bg-gray-600">
+                              <input
+                                type="checkbox"
+                                checked={selectedStations.includes(revier.id)}
+                                onChange={() => handleStationToggle(revier.id)}
+                                className="mr-3 h-4 w-4 text-blue-600 rounded"
+                              />
+                              <div className="flex-1">
+                                <span className="font-medium text-gray-900 dark:text-white">{revier.name}</span>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{revier.address}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </motion.div>
@@ -397,44 +369,42 @@ const Step2TabSystemSimple: React.FC = () => {
                     customAddresses.map((address) => (
                       <motion.div
                         key={address.id}
-                        whileHover={{ scale: 1.01 }}
-                        className={`p-4 border rounded-xl transition-all duration-200 ${
-                          selectedCustom.includes(address.id)
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`p-4 border rounded-xl cursor-pointer transition-all duration-200 ${
+                          selectedCustomAddresses.includes(address.id)
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                            : 'border-gray-200 dark:border-gray-600'
+                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                         }`}
+                        onClick={() => handleCustomToggle(address.id)}
                       >
-                        <div className="flex items-center justify-between">
-                          <div 
-                            className="flex-1 cursor-pointer"
-                            onClick={() => handleCustomToggle(address.id)}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                                selectedCustom.includes(address.id)
-                                  ? 'border-blue-500 bg-blue-500'
-                                  : 'border-gray-300 dark:border-gray-600'
-                              }`}>
-                                {selectedCustom.includes(address.id) && (
-                                  <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 8 8">
-                                    <path d="M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z"/>
-                                  </svg>
-                                )}
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white">
-                                  {address.name}
-                                </h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  {address.street}, {address.zipCode} {address.city}
-                                </p>
-                              </div>
-                            </div>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+                              {address.name}
+                            </h3>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                              {address.street}, {address.zipCode} {address.city}
+                            </p>
                           </div>
-                          <div className="flex space-x-2">
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                              selectedCustomAddresses.includes(address.id)
+                                ? 'border-blue-500 bg-blue-500'
+                                : 'border-gray-300 dark:border-gray-600'
+                            }`}>
+                              {selectedCustomAddresses.includes(address.id) && (
+                                <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 8 8">
+                                  <path d="M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z"/>
+                                </svg>
+                              )}
+                            </div>
                             <button
-                              onClick={() => handleDeleteAddress(address.id)}
-                              className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteAddress(address.id);
+                              }}
+                              className="text-red-500 hover:text-red-700 p-1"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -454,21 +424,15 @@ const Step2TabSystemSimple: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.4 }}
         className="flex justify-center"
       >
         <button
           onClick={handleContinue}
-          disabled={selectedStations.length + selectedCustom.length === 0}
-          className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:cursor-not-allowed"
+          className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           <span>Weiter zu Schritt 3</span>
           <ArrowRight className="h-5 w-5" />
-          {(selectedStations.length + selectedCustom.length > 0) && (
-            <span className="bg-white/20 px-2 py-1 rounded-full text-sm">
-              {selectedStations.length + selectedCustom.length} ausgewählt
-            </span>
-          )}
         </button>
       </motion.div>
     </div>
