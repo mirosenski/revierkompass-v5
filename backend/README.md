@@ -250,6 +250,17 @@ npm run lint        # ESLint ausführen
 npm run test        # Tests ausführen
 ```
 
+## ✅ Tests
+
+Um die Jest-Testsuite auszuführen, wechsel in das Backend-Verzeichnis und starte:
+
+```bash
+cd backend
+npm run test
+```
+
+Die Datenbankzugriffe werden dabei gemockt, sodass keine echte Datenbank benötigt wird.
+
 ## 🐳 Docker-Support
 
 ```yaml
