@@ -27,21 +27,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { offlineMapService } from '@/lib/services/offline-map-service';
-
-interface RouteResult {
-  id: string;
-  destinationName: string;
-  destinationType: 'station' | 'custom';
-  address: string;
-  distance: number;
-  duration: number;
-  estimatedFuel: number;
-  estimatedCost: number;
-  routeType: 'Schnellste' | 'Kürzeste' | 'Ökonomisch' | 'Einsatzfahrt' | 'Fußweg';
-  coordinates: { lat: number; lng: number };
-  color: string;
-  profile?: string;
-}
+import { RouteResult } from '@/lib/store/app-store';
 
 interface OfflineMapComponentProps {
   routeResults: RouteResult[];

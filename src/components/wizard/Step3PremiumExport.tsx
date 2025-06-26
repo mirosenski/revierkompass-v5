@@ -6,24 +6,32 @@ import toast from 'react-hot-toast';
 import InteractiveMap from '../map/InteractiveMap';
 import OfflineMapComponent from '../map/OfflineMapComponent';
 import { useWizardStore } from '@/store/useWizardStore';
-import { useAppStore } from '@/lib/store/app-store';
+import { useAppStore, RouteResult } from '@/lib/store/app-store';
 import { useStationStore } from '@/store/useStationStore';
 import { routingService } from '@/lib/services/routing-service';
 import NoSelectionWarning from './NoSelectionWarning';
+import { Station as StationType } from '@/types/station.types';
+import { Station as AppStoreStation } from '@/lib/store/app-store';
 
-interface RouteResult {
-  id: string;
-  destinationName: string;
-  destinationType: 'station' | 'custom';
-  address: string;
-  distance: number; // in km
-  duration: number; // in minutes
-  estimatedFuel: number; // in liters
-  estimatedCost: number; // in euros
-  routeType: 'Schnellste' | 'Kürzeste' | 'Ökonomisch';
-  coordinates: { lat: number; lng: number };
-  color: string;
-}
+// Hilfsfunktion zur Konvertierung zwischen Station-Typen
+const convertStationType = (station: StationType): AppStoreStation => {
+  return {
+    id: station.id,
+    name: station.name,
+    address: station.address,
+    coordinates: {
+      lat: station.coordinates[0],
+      lng: station.coordinates[1]
+    },
+    phone: station.telefon,
+    email: '', // Nicht verfügbar in station.types.ts
+    type: station.type === 'praesidium' ? 'Präsidium' : 'Revier',
+    city: station.city,
+    district: '', // Nicht verfügbar in station.types.ts
+    openingHours: '', // Nicht verfügbar in station.types.ts
+    emergency24h: station.notdienst24h
+  };
+};
 
 interface Tab {
   id: string;
@@ -50,11 +58,14 @@ const Step3PremiumExport: React.FC = () => {
 
       setIsCalculating(true);
       try {
+        // Konvertiere Stationen in den erwarteten Typ
+        const convertedStations = stations.map(convertStationType);
+        
         const routes = await routingService.calculateMultipleRoutes(
           startAddress,
           selectedStations || [],
           selectedCustomAddresses || [],
-          stations,
+          convertedStations,
           customAddresses || []
         );
 
@@ -72,11 +83,13 @@ const Step3PremiumExport: React.FC = () => {
     if (startAddress && (selectedStations?.length || selectedCustomAddresses?.length)) {
       void calculateRoutes();
     }
-  }, [startAddress, selectedStations, selectedCustomAddresses, customAddresses]);
+  }, [startAddress, selectedStations, selectedCustomAddresses, customAddresses, stations]);
 
   if (!startAddress || (!selectedStations?.length && !selectedCustomAddresses?.length)) {
     return <NoSelectionWarning />;
   }
+
+  const results = routeResults || [];
 
   const tabs: Tab[] = [
     { id: 'summary', label: 'Zusammenfassung', icon: BarChart3 },
@@ -85,7 +98,6 @@ const Step3PremiumExport: React.FC = () => {
     { id: 'table', label: 'Detaillierte Tabelle', icon: Table },
     { id: 'export', label: 'Export-Optionen', icon: Download }
   ];
-
 
   const exportToExcel = () => {
     const workbook = XLSX.utils.book_new();
@@ -240,8 +252,6 @@ const Step3PremiumExport: React.FC = () => {
       default: return exportToExcel;
     }
   };
-
-  const results = routeResults || [];
 
   const totalDistance = results.reduce((sum, r) => sum + r.distance, 0);
   const totalDuration = results.reduce((sum, r) => sum + r.duration, 0);

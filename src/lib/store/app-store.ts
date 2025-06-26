@@ -23,6 +23,7 @@ export interface CustomAddress {
   street: string;
   zipCode: string;
   city: string;
+  address: string; // Vollständige Adresse
   coordinates?: Coordinates;
   createdAt: Date;
   isSelected?: boolean;
@@ -43,17 +44,25 @@ export interface Station {
 }
 
 export interface RouteResult {
+  id: string;
   destinationId: string;
   destinationName: string;
   destinationType: 'station' | 'custom';
+  address: string;
   distance: number; // in km
   duration: number; // in minutes
+  estimatedFuel: number; // in liters
+  estimatedCost: number; // in euros
+  routeType: 'Schnellste' | 'Kürzeste' | 'Ökonomisch';
+  coordinates: Coordinates;
+  color: string;
+  profile?: string; // Routing-Profil für Offline-Maps
   route: {
     coordinates: [number, number][];
     distance: number;
     duration: number;
   };
-  provider: 'OSRM' | 'Valhalla' | 'GraphHopper';
+  provider: 'OSRM' | 'Valhalla' | 'GraphHopper' | 'Direct';
 }
 
 // Wizard State
@@ -84,7 +93,7 @@ export interface AppState {
   
   // Custom Addresses
   customAddresses: CustomAddress[];
-  addCustomAddress: (address: Omit<CustomAddress, 'id' | 'createdAt'>) => void;
+  addCustomAddress: (address: Omit<CustomAddress, 'id' | 'createdAt' | 'address'>) => void;
   updateCustomAddress: (id: string, updates: Partial<CustomAddress>) => void;
   deleteCustomAddress: (id: string) => void;
   toggleCustomAddressSelection: (id: string) => void;
@@ -172,6 +181,7 @@ export const useAppStore = create<AppState>()(
             ...state.customAddresses,
             {
               ...address,
+              address: `${address.street}, ${address.zipCode} ${address.city}`,
               id: `addr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
               createdAt: new Date(),
               isSelected: false

@@ -17,20 +17,7 @@ import {
   Settings
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-interface RouteResult {
-  id: string;
-  destinationName: string;
-  destinationType: 'station' | 'custom';
-  address: string;
-  distance: number;
-  duration: number;
-  estimatedFuel: number;
-  estimatedCost: number;
-  routeType: 'Schnellste' | 'Kürzeste' | 'Ökonomisch';
-  coordinates: { lat: number; lng: number };
-  color: string;
-}
+import { RouteResult } from '@/lib/store/app-store';
 
 interface InteractiveMapProps {
   routeResults: RouteResult[];
