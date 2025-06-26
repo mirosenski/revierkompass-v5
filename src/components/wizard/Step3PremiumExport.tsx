@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download, FileSpreadsheet, FileText, Copy, Clock, MapPin, Route, Zap, BarChart3, Map, Table, Wifi, WifiOff } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 import InteractiveMap from '../map/InteractiveMap';
 import OfflineMapComponent from '../map/OfflineMapComponent';
+import { useWizardStore } from '@/store/useWizardStore';
+import { useAppStore } from '@/lib/store/app-store';
+import NoSelectionWarning from './NoSelectionWarning';
 
 interface RouteResult {
   id: string;
@@ -27,10 +30,17 @@ interface Tab {
 }
 
 const Step3PremiumExport: React.FC = () => {
-  const [routeResults, setRouteResults] = useState<RouteResult[]>([]);
-  const [isCalculating, setIsCalculating] = useState(true);
+  const { selectedStations, selectedCustomAddresses } = useWizardStore();
+  const startAddress = useAppStore(state => state.wizard.startAddress);
+
+  const [routeResults, setRouteResults] = useState<RouteResult[] | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
   const [exportFormat, setExportFormat] = useState<'excel' | 'pdf' | 'csv'>('excel');
   const [activeTab, setActiveTab] = useState('summary');
+
+  if (!selectedStations?.length) {
+    return <NoSelectionWarning />;
+  }
 
   const tabs: Tab[] = [
     { id: 'summary', label: 'Zusammenfassung', icon: BarChart3 },
@@ -40,90 +50,6 @@ const Step3PremiumExport: React.FC = () => {
     { id: 'export', label: 'Export-Optionen', icon: Download }
   ];
 
-  // Simulate route calculation on mount
-  useEffect(() => {
-    calculateRoutes();
-  }, []);
-
-  const calculateRoutes = async () => {
-    setIsCalculating(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Generate demo route results
-    const demoResults: RouteResult[] = [
-      {
-        id: '1',
-        destinationName: 'Polizeipräsidium Stuttgart',
-        destinationType: 'station',
-        address: 'Heslacher Tunnel 1, 70173 Stuttgart',
-        distance: 12.5,
-        duration: 18,
-        estimatedFuel: 1.2,
-        estimatedCost: 2.10,
-        routeType: 'Schnellste',
-        coordinates: { lat: 48.7758, lng: 9.1829 },
-        color: '#ef4444'
-      },
-      {
-        id: '2',
-        destinationName: 'Polizeirevier Stuttgart-Bad Cannstatt',
-        destinationType: 'station',
-        address: 'Wilhelmsplatz 3, 70372 Stuttgart',
-        distance: 8.3,
-        duration: 15,
-        estimatedFuel: 0.8,
-        estimatedCost: 1.40,
-        routeType: 'Kürzeste',
-        coordinates: { lat: 48.8066, lng: 9.2206 },
-        color: '#3b82f6'
-      },
-      {
-        id: '3',
-        destinationName: 'Büro Zentrale',
-        destinationType: 'custom',
-        address: 'Königstraße 10, 70173 Stuttgart',
-        distance: 5.2,
-        duration: 12,
-        estimatedFuel: 0.5,
-        estimatedCost: 0.90,
-        routeType: 'Ökonomisch',
-        coordinates: { lat: 48.7758, lng: 9.1839 },
-        color: '#22c55e'
-      },
-      {
-        id: '4',
-        destinationName: 'Polizeirevier Esslingen',
-        destinationType: 'station',
-        address: 'Pulverwiesen 11, 73728 Esslingen',
-        distance: 22.1,
-        duration: 28,
-        estimatedFuel: 2.1,
-        estimatedCost: 3.70,
-        routeType: 'Schnellste',
-        coordinates: { lat: 48.7365, lng: 9.3122 },
-        color: '#eab308'
-      },
-      {
-        id: '5',
-        destinationName: 'Polizeirevier Ludwigsburg',
-        destinationType: 'station',
-        address: 'Hindenburgstraße 40, 71638 Ludwigsburg',
-        distance: 15.8,
-        duration: 22,
-        estimatedFuel: 1.5,
-        estimatedCost: 2.63,
-        routeType: 'Schnellste',
-        coordinates: { lat: 48.8973, lng: 9.1953 },
-        color: '#a855f7'
-      }
-    ];
-    
-    setRouteResults(demoResults);
-    setIsCalculating(false);
-    toast.success('Routenberechnung abgeschlossen!');
-  };
 
   const exportToExcel = () => {
     const workbook = XLSX.utils.book_new();
@@ -135,7 +61,7 @@ const Step3PremiumExport: React.FC = () => {
       ['Exportiert am: ' + new Date().toLocaleString('de-DE')],
       [''],
       ['Ziel', 'Typ', 'Adresse', 'Entfernung (km)', 'Fahrzeit (min)', 'Kraftstoff (L)', 'Kosten (€)', 'Route-Typ'],
-      ...routeResults.map(result => [
+      ...(results).map(result => [
         result.destinationName,
         result.destinationType === 'station' ? 'Polizeistation' : 'Eigene Adresse',
         result.address,
@@ -147,11 +73,11 @@ const Step3PremiumExport: React.FC = () => {
       ]),
       [''],
       ['ZUSAMMENFASSUNG'],
-      ['Gesamtanzahl Ziele:', routeResults.length],
-      ['Gesamtentfernung (km):', routeResults.reduce((sum, r) => sum + r.distance, 0).toFixed(1)],
-      ['Gesamtfahrzeit (min):', routeResults.reduce((sum, r) => sum + r.duration, 0)],
-      ['Gesamtkraftstoff (L):', routeResults.reduce((sum, r) => sum + r.estimatedFuel, 0).toFixed(1)],
-      ['Gesamtkosten (€):', routeResults.reduce((sum, r) => sum + r.estimatedCost, 0).toFixed(2)]
+      ['Gesamtanzahl Ziele:', results.length],
+      ['Gesamtentfernung (km):', results.reduce((sum, r) => sum + r.distance, 0).toFixed(1)],
+      ['Gesamtfahrzeit (min):', results.reduce((sum, r) => sum + r.duration, 0)],
+      ['Gesamtkraftstoff (L):', results.reduce((sum, r) => sum + r.estimatedFuel, 0).toFixed(1)],
+      ['Gesamtkosten (€):', results.reduce((sum, r) => sum + r.estimatedCost, 0).toFixed(2)]
     ];
 
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
@@ -181,7 +107,7 @@ const Step3PremiumExport: React.FC = () => {
       ['Anwendung:', 'RevierKompass v2.0'],
       ['Organisation:', 'Polizei Baden-Württemberg'],
       ['Export-Datum:', new Date().toLocaleString('de-DE')],
-      ['Anzahl Routen:', routeResults.length],
+      ['Anzahl Routen:', results.length],
       [''],
       ['Routing-Parameter'],
       ['Provider:', 'OSRM, Valhalla, GraphHopper'],
@@ -204,7 +130,7 @@ const Step3PremiumExport: React.FC = () => {
 
   const exportToPDF = () => {
     // Vereinfachter PDF-Export (in production würde hier jsPDF oder ähnliches verwendet)
-    const content = routeResults.map(result => 
+    const content = results.map(result =>
       `${result.destinationName} | ${result.address} | ${result.distance}km | ${result.duration}min`
     ).join('\n');
     
@@ -231,7 +157,7 @@ const Step3PremiumExport: React.FC = () => {
     const headers = ['Ziel', 'Typ', 'Adresse', 'Entfernung_km', 'Fahrzeit_min', 'Kraftstoff_L', 'Kosten_EUR', 'Route_Typ'];
     const csvContent = [
       headers.join(','),
-      ...routeResults.map(result =>
+      ...results.map(result =>
         [
           `"${result.destinationName}"`,
           result.destinationType === 'station' ? 'Polizeistation' : 'Eigene_Adresse',
@@ -259,7 +185,7 @@ const Step3PremiumExport: React.FC = () => {
   };
 
   const copyToClipboard = () => {
-    const content = routeResults.map(result => 
+    const content = results.map(result =>
       `${result.destinationName}\t${result.address}\t${result.distance} km\t${result.duration} min`
     ).join('\n');
     
@@ -279,10 +205,12 @@ const Step3PremiumExport: React.FC = () => {
     }
   };
 
-  const totalDistance = routeResults.reduce((sum, r) => sum + r.distance, 0);
-  const totalDuration = routeResults.reduce((sum, r) => sum + r.duration, 0);
-  const totalFuel = routeResults.reduce((sum, r) => sum + r.estimatedFuel, 0);
-  const totalCost = routeResults.reduce((sum, r) => sum + r.estimatedCost, 0);
+  const results = routeResults || [];
+
+  const totalDistance = results.reduce((sum, r) => sum + r.distance, 0);
+  const totalDuration = results.reduce((sum, r) => sum + r.duration, 0);
+  const totalFuel = results.reduce((sum, r) => sum + r.estimatedFuel, 0);
+  const totalCost = results.reduce((sum, r) => sum + r.estimatedCost, 0);
 
   const renderTableTab = () => (
     <motion.div
@@ -312,7 +240,7 @@ const Step3PremiumExport: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
-            {routeResults.map((result, index) => (
+            {results.map((result, index) => (
               <motion.tr
                 key={result.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -482,9 +410,9 @@ const Step3PremiumExport: React.FC = () => {
           <div className="flex items-center space-x-3">
             <MapPin className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {routeResults.length}
-              </h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {results.length}
+                </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">Ziele</p>
             </div>
           </div>
@@ -533,7 +461,7 @@ const Step3PremiumExport: React.FC = () => {
           Routenübersicht
         </h3>
         <div className="space-y-3">
-          {routeResults.map((result, index) => (
+            {results.map((result, index) => (
             <div key={result.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center space-x-3">
                 <div 
@@ -570,11 +498,11 @@ const Step3PremiumExport: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <InteractiveMap 
-        routeResults={routeResults}
-        startAddress="Stuttgart Hauptbahnhof"
-        startCoordinates={{ lat: 48.7838, lng: 9.1829 }}
-      />
+        <InteractiveMap
+          routeResults={routeResults || []}
+          startAddress={startAddress?.fullAddress || ''}
+          startCoordinates={startAddress?.coordinates || { lat: 0, lng: 0 }}
+        />
     </motion.div>
   );
 
@@ -617,12 +545,12 @@ const Step3PremiumExport: React.FC = () => {
         </div>
       </div>
 
-      <OfflineMapComponent 
-        routeResults={routeResults}
-        startAddress="Stuttgart Hauptbahnhof"
-        startCoordinates={{ lat: 48.7838, lng: 9.1829 }}
-        showOfflineControls={true}
-        onRouteRecalculate={(routeId, profile) => {
+        <OfflineMapComponent
+          routeResults={routeResults || []}
+          startAddress={startAddress?.fullAddress || ''}
+          startCoordinates={startAddress?.coordinates || { lat: 0, lng: 0 }}
+          showOfflineControls={true}
+          onRouteRecalculate={(routeId, profile) => {
           // Hier würde die Route mit dem neuen Profil neu berechnet
           console.log(`Recalculating route ${routeId} with profile ${profile}`);
           // In einer echten Implementierung würden hier die Routen-Daten aktualisiert
@@ -678,7 +606,8 @@ const Step3PremiumExport: React.FC = () => {
           </div>
         </motion.div>
       ) : (
-        <>
+        routeResults && (
+          <>
           {/* Tab Navigation */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -717,7 +646,8 @@ const Step3PremiumExport: React.FC = () => {
           >
             {renderTabContent()}
           </motion.div>
-        </>
+          </>
+        )
       )}
     </div>
   );
