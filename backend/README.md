@@ -270,9 +270,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-volumes:
-  postgres_data:
+  volumes:
+    postgres_data:
 ```
+
+Die Datenbank wird automatisch durch Prisma-Migrationen und das Seed-Skript
+initialisiert. Zusätzliche SQL-Initialisierungsskripte sind daher nicht nötig.
 
 ## 🚨 Troubleshooting
 
