@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Download, FileSpreadsheet, FileText, Copy, Clock, MapPin, Route, Zap, BarChart3, Map, Table, Wifi, WifiOff } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -7,6 +7,8 @@ import InteractiveMap from '../map/InteractiveMap';
 import OfflineMapComponent from '../map/OfflineMapComponent';
 import { useWizardStore } from '@/store/useWizardStore';
 import { useAppStore } from '@/lib/store/app-store';
+import { useStationStore } from '@/store/useStationStore';
+import { routingService } from '@/lib/services/routing-service';
 import NoSelectionWarning from './NoSelectionWarning';
 
 interface RouteResult {
@@ -31,14 +33,48 @@ interface Tab {
 
 const Step3PremiumExport: React.FC = () => {
   const { selectedStations, selectedCustomAddresses } = useWizardStore();
-  const startAddress = useAppStore(state => state.wizard.startAddress);
+  const { wizard: { startAddress }, customAddresses } = useAppStore();
+  const { stations } = useStationStore();
 
   const [routeResults, setRouteResults] = useState<RouteResult[] | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [exportFormat, setExportFormat] = useState<'excel' | 'pdf' | 'csv'>('excel');
   const [activeTab, setActiveTab] = useState('summary');
 
-  if (!selectedStations?.length) {
+  useEffect(() => {
+    const calculateRoutes = async () => {
+      if (!startAddress || (!selectedStations?.length && !selectedCustomAddresses?.length)) {
+        setRouteResults(null);
+        return;
+      }
+
+      setIsCalculating(true);
+      try {
+        const routes = await routingService.calculateMultipleRoutes(
+          startAddress,
+          selectedStations || [],
+          selectedCustomAddresses || [],
+          stations,
+          customAddresses || []
+        );
+
+        setRouteResults(routes as unknown as RouteResult[]);
+        toast.success('Routenberechnung abgeschlossen!');
+      } catch (error) {
+        console.error('Routenberechnung fehlgeschlagen:', error);
+        toast.error('Fehler bei der Routenberechnung');
+        setRouteResults(null);
+      } finally {
+        setIsCalculating(false);
+      }
+    };
+
+    if (startAddress && (selectedStations?.length || selectedCustomAddresses?.length)) {
+      void calculateRoutes();
+    }
+  }, [startAddress, selectedStations, selectedCustomAddresses, customAddresses]);
+
+  if (!startAddress || (!selectedStations?.length && !selectedCustomAddresses?.length)) {
     return <NoSelectionWarning />;
   }
 
