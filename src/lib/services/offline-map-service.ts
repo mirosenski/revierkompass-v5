@@ -1,4 +1,5 @@
 import { toast } from 'react-hot-toast';
+import { DEFAULT_ROUTE_PROFILES } from '../../../shared/offline-map/profiles';
 
 interface NetworkStatus {
   online: boolean;
@@ -304,7 +305,7 @@ export class OfflineMapService {
         return JSON.parse(cached);
       }
       
-      return this.getDefaultProfiles();
+      return DEFAULT_ROUTE_PROFILES;
     }
   }
 
@@ -571,37 +572,6 @@ export class OfflineMapService {
     return R * c;
   }
 
-  private getDefaultProfiles(): RouteProfile[] {
-    return [
-      {
-        id: 'police_patrol',
-        name: 'Polizei-Streife (Standard)',
-        mode: 'auto',
-        costing: 'auto',
-        description: 'Standard-Routing für Polizeistreifen',
-        icon: '🚔',
-        useCase: 'Routine-Patrouillen'
-      },
-      {
-        id: 'emergency_fast',
-        name: 'Einsatzfahrt (Schnellste)',
-        mode: 'emergency',
-        costing: 'auto',
-        description: 'Optimiert für Einsatzfahrten',
-        icon: '🚨',
-        useCase: 'Notfall-Einsätze'
-      },
-      {
-        id: 'pedestrian_safe',
-        name: 'Fußweg (Sicherste)',
-        mode: 'pedestrian',
-        costing: 'pedestrian',
-        description: 'Sichere Fußwege',
-        icon: '🚶',
-        useCase: 'Fußstreife'
-      }
-    ];
-  }
 
   private calculateTileList(
     bounds: { north: number; south: number; east: number; west: number },
