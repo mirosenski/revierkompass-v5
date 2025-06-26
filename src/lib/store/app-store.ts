@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { useWizardStore } from '@/store/useWizardStore';
+import { useStationStore } from '@/store/useStationStore';
 
 // Core Interfaces
 export interface Coordinates {
@@ -184,7 +185,11 @@ export const useAppStore = create<AppState>()(
 
         // Reset Wizard Store persisted state
         useWizardStore.getState().resetAll();
-        
+
+        // Reset Station Store und lade neu
+        const { resetStations, loadStations } = useStationStore.getState();
+        resetStations();
+
         // Reset Custom Addresses
         set({ customAddresses: [] });
         
@@ -205,10 +210,15 @@ export const useAppStore = create<AppState>()(
         
         // Reset Error States
         set({ error: null });
-        
-        // Reset Station Data
+
+        // Reset Station Data in App Store
         set({ stations: [] });
-        
+
+        // Lade Stationen nach kurzer Verzögerung neu
+        setTimeout(() => {
+          loadStations();
+        }, 100);
+
         console.log('🔄 App Store: Vollständiger Reset durchgeführt');
       },
       

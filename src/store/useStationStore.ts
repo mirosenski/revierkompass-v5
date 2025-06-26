@@ -8,6 +8,7 @@ interface StationStore {
   error: string | null
 
   loadStations: () => Promise<void>
+  resetStations: () => void
   getStationsByType: (type: 'praesidium' | 'revier') => Station[]
   getReviereByPraesidium: (praesidiumId: string) => Station[]
   getPraesidiumById: (id: string) => Station | undefined
@@ -19,7 +20,8 @@ export const useStationStore = create<StationStore>((set, get) => ({
   error: null,
 
   loadStations: async () => {
-    if (get().stations.length > 0 || get().isLoading) return
+    // Stations always need to be loaded when this function is called
+    if (get().isLoading) return
     set({ isLoading: true, error: null })
     try {
       const data = await stationService.getAllStations()
@@ -28,6 +30,10 @@ export const useStationStore = create<StationStore>((set, get) => ({
       const message = err instanceof Error ? err.message : 'Unknown error'
       set({ error: message, isLoading: false })
     }
+  },
+
+  resetStations: () => {
+    set({ stations: [], isLoading: false, error: null })
   },
 
   getStationsByType: (type) => get().stations.filter((s) => s.type === type),
