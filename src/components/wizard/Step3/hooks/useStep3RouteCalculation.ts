@@ -99,6 +99,9 @@ export const useStep3RouteCalculation = () => {
             setRouteResults(routes as RouteResult[]);
             toast.success('Routenberechnung abgeschlossen!');
           }
+          if (typeof performance !== 'undefined') {
+            performance.mark('worker-response');
+          }
         } catch (fallbackError: unknown) {
           if (isMounted && fallbackError instanceof Error && fallbackError.name !== 'AbortError') {
             console.error('Fallback Routenberechnung fehlgeschlagen:', fallbackError);
@@ -108,6 +111,11 @@ export const useStep3RouteCalculation = () => {
         } finally {
           if (isMounted) {
             setIsCalculating(false);
+            if (typeof performance !== 'undefined') {
+              performance.mark('calculation-end');
+              performance.measure('total-calculation', 'calculation-start', 'calculation-end');
+              performance.measure('spinner-duration', 'spinner-show', 'worker-response');
+            }
           }
         }
       } finally {

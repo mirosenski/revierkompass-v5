@@ -25,6 +25,9 @@ export const useRoutingWorker = (): UseRoutingWorkerReturn => {
       );
 
       workerRef.current.onmessage = (event: MessageEvent<WorkerResult>) => {
+        if (typeof performance !== 'undefined') {
+          performance.mark('worker-response');
+        }
         if (event.data.type === 'error') {
           console.error('Worker-Fehler:', event.data.error);
           setError(event.data.error || 'Unbekannter Worker-Fehler');
@@ -32,12 +35,23 @@ export const useRoutingWorker = (): UseRoutingWorkerReturn => {
           setRoutes(event.data.data || []);
         }
         setIsCalculating(false);
+        if (typeof performance !== 'undefined') {
+          performance.mark('calculation-end');
+          performance.measure('total-calculation', 'calculation-start', 'calculation-end');
+          performance.measure('spinner-duration', 'spinner-show', 'worker-response');
+        }
       };
 
       workerRef.current.onerror = (workerError) => {
         console.error('Worker-Fehler:', workerError);
         setError('Worker-Initialisierung fehlgeschlagen');
         setIsCalculating(false);
+        if (typeof performance !== 'undefined') {
+          performance.mark('worker-response');
+          performance.mark('calculation-end');
+          performance.measure('total-calculation', 'calculation-start', 'calculation-end');
+          performance.measure('spinner-duration', 'spinner-show', 'worker-response');
+        }
       };
 
     } catch (error) {
@@ -59,14 +73,23 @@ export const useRoutingWorker = (): UseRoutingWorkerReturn => {
     setIsCalculating(true);
     setError(null);
     setRoutes(null);
-
-    try {
-      workerRef.current.postMessage(request);
-    } catch (error) {
-      console.error('Fehler beim Senden der Nachricht an Worker:', error);
-      setError('Fehler bei der Worker-Kommunikation');
-      setIsCalculating(false);
+    if (typeof performance !== 'undefined') {
+      performance.mark('calculation-start');
     }
+
+  try {
+    workerRef.current.postMessage(request);
+  } catch (error) {
+    console.error('Fehler beim Senden der Nachricht an Worker:', error);
+    setError('Fehler bei der Worker-Kommunikation');
+    setIsCalculating(false);
+    if (typeof performance !== 'undefined') {
+      performance.mark('worker-response');
+      performance.mark('calculation-end');
+      performance.measure('total-calculation', 'calculation-start', 'calculation-end');
+      performance.measure('spinner-duration', 'spinner-show', 'worker-response');
+    }
+  }
   }, []);
 
   const clearError = useCallback(() => {
