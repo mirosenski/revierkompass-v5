@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Shield, Sun, Moon, LogIn, LogOut, Settings, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
 import { useAuthStore } from '@/lib/store/auth-store';
+import { useWizardStore } from '@/store/useWizardStore';
 
 interface HeaderProps {
   onAdminLogin: () => void;
@@ -20,6 +21,11 @@ const Header: React.FC<HeaderProps> = ({ onAdminLogin, onBackToWizard, onGoToAdm
     onBackToWizard();
   };
 
+  const handleLogoClick = () => {
+    useWizardStore.getState().resetWizard();
+    onBackToWizard();
+  };
+
   return (
     <motion.header 
       initial={{ y: -100, opacity: 0 }}
@@ -33,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ onAdminLogin, onBackToWizard, onGoToAdm
           <motion.div 
             whileHover={{ scale: 1.02 }}
             className="flex items-center space-x-4 cursor-pointer"
-            onClick={onBackToWizard}
+            onClick={handleLogoClick}
           >
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl blur-lg opacity-30"></div>
