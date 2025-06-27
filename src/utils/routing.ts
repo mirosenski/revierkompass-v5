@@ -66,7 +66,7 @@ class WorkerRoutingService {
     customAddresses: CustomAddress[]
   ): Promise<RouteResult[]> {
     const cacheKey = JSON.stringify({
-      startAddress: startAddress.id,
+      startAddress: `${startAddress.coordinates.lat},${startAddress.coordinates.lng}-${startAddress.fullAddress}`,
       selectedStationIds,
       selectedCustomAddressIds
     });
