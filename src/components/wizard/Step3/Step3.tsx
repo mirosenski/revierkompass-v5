@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
 import { useWizardStore } from '@/store/useWizardStore';
+import { useEffect } from 'react';
 
 // Components
 import { TabNavigation } from './components/TabNavigation';
@@ -62,6 +63,12 @@ export const Step3: React.FC = () => {
 
   const results = routeResults || [];
   const startCoordinates = startAddress?.coordinates || { lat: 0, lng: 0 };
+
+  useEffect(() => {
+    if (isCalculating && typeof performance !== 'undefined') {
+      performance.mark('spinner-show');
+    }
+  }, [isCalculating]);
 
   if (isCalculating) {
     return <Step3Spinner text="Routen werden berechnet..." />;

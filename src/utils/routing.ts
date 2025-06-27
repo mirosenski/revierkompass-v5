@@ -1,5 +1,41 @@
 import { RouteResult, Address, Station, CustomAddress, Coordinates } from '@/lib/store/app-store';
 
+class LRUCache<K, V> {
+  private readonly max: number;
+  private readonly ttl: number;
+  private map = new Map<K, { value: V; expiry: number }>();
+
+  constructor(max: number, ttl: number) {
+    this.max = max;
+    this.ttl = ttl;
+  }
+
+  get(key: K): V | undefined {
+    const entry = this.map.get(key);
+    if (!entry) return undefined;
+    if (Date.now() > entry.expiry) {
+      this.map.delete(key);
+      return undefined;
+    }
+    // refresh LRU order
+    this.map.delete(key);
+    this.map.set(key, entry);
+    return entry.value;
+  }
+
+  set(key: K, value: V): void {
+    if (this.map.has(key)) {
+      this.map.delete(key);
+    } else if (this.map.size >= this.max) {
+      const firstKey = this.map.keys().next().value;
+      if (firstKey !== undefined) {
+        this.map.delete(firstKey);
+      }
+    }
+    this.map.set(key, { value, expiry: Date.now() + this.ttl });
+  }
+}
+
 export interface RouteRequest {
   start: Coordinates;
   end: Coordinates;
@@ -11,8 +47,8 @@ export interface RouteResponse {
   duration: number; // in seconds
 }
 
-// In-memory Cache für Worker
-const routeCache = new Map<string, RouteResult[]>();
+// In-memory Cache für Worker mit einfachem LRU-Mechanismus
+const routeCache = new LRUCache<string, RouteResult[]>(100, 1000 * 60 * 5);
 
 class WorkerRoutingService {
   private readonly OSRM_BASE_URL = 'https://router.project-osrm.org/route/v1/driving';
@@ -36,8 +72,9 @@ class WorkerRoutingService {
     });
 
     // Check cache first
-    if (routeCache.has(cacheKey)) {
-      return routeCache.get(cacheKey)!;
+    const cached = routeCache.get(cacheKey);
+    if (cached) {
+      return cached;
     }
 
     const results: RouteResult[] = [];
