@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import WizardContainer from '@/components/wizard/WizardContainer';
 import LoginForm from '@/components/auth/LoginForm';
 import AdminDashboard from '@/components/admin/AdminDashboard';
+import { useWizardStore } from '@/store/useWizardStore';
 
 function App() {
   const [currentView, setCurrentView] = useState<'wizard' | 'login' | 'admin'>('wizard');
@@ -35,6 +36,10 @@ function App() {
       setCurrentView('admin');
     }
   }, [isAuthenticated, isAdmin, currentView]);
+
+  useEffect(() => {
+    useWizardStore.getState().resetWizard();
+  }, []);
 
   const handleAdminLogin = () => {
     setCurrentView('login');

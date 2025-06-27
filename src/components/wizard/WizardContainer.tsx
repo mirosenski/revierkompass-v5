@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Users, Download, CheckCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Users, Download, CheckCircle, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/lib/store/app-store';
-import Step1AddressInputSimple from './Step1AddressInputSimple';
-import UltraModernStep2 from './UltraModernStep2';
-import Step3PremiumExport from './Step3PremiumExport';
+import { useWizardStore } from '@/store/useWizardStore';
+import { Step1 } from './Step1';
+import { Step2 } from './Step2';
+import { Step3 } from './Step3';
 
 const WizardContainer: React.FC = () => {
   const { wizard, setWizardStep } = useAppStore();
@@ -150,9 +151,9 @@ const WizardContainer: React.FC = () => {
         transition={{ duration: 0.3 }}
         className="min-h-[500px]"
       >
-        {wizard.currentStep === 1 && <Step1AddressInputSimple />}
-        {wizard.currentStep === 2 && <UltraModernStep2 />}
-        {wizard.currentStep === 3 && <Step3PremiumExport />}
+        {wizard.currentStep === 1 && <Step1 />}
+        {wizard.currentStep === 2 && <Step2 />}
+        {wizard.currentStep === 3 && <Step3 />}
       </motion.div>
     </div>
   );
